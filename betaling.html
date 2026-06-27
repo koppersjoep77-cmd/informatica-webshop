@@ -177,13 +177,24 @@
 
 <div class="footer">© 2025 MUSICMEDIA — PREMIUM SOUND & VINYL SELECTION</div>
 
-<script>
-  const DISCOUNT_CODES = {
-    'MUSIC10': 10,   // 10% korting
-    'VINYL20': 20,   // 20% korting
-    'WELKOM5': 5     // 5% korting
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355"
   };
 
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const DISCOUNT_CODES = { 'MUSIC10': 10, 'VINYL20': 20, 'WELKOM5': 5 };
   let discountPercent = 0;
 
   const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
@@ -217,7 +228,6 @@
     const discountAmount = subtotal * (discountPercent / 100);
     const finalTotal = subtotal - discountAmount + shippingCosts;
 
-    // Verwijder oude verzend/korting regels
     document.querySelectorAll('.dynamic-row').forEach(el => el.remove());
 
     if (discountPercent > 0) {
@@ -238,7 +248,7 @@
     hiddenProducts.value = productNames.join(', ') + ` (Verzending: €${shippingCosts.toFixed(2)})`;
   }
 
-  function applyDiscount() {
+  window.applyDiscount = function() {
     const code = document.getElementById('discount-code').value.trim().toUpperCase();
     const msg = document.getElementById('discount-msg');
     if (!code) { msg.style.color = '#c0392b'; msg.textContent = 'Vul een kortingscode in.'; return; }
@@ -254,21 +264,20 @@
       msg.style.color = '#c0392b';
       msg.textContent = 'Ongeldige kortingscode.';
     }
-  }
+  };
 
-  function removeDiscount() {
+  window.removeDiscount = function() {
     discountPercent = 0;
     document.getElementById('discount-input-row').style.display = 'flex';
     document.getElementById('discount-code').value = '';
     document.getElementById('discount-applied').style.display = 'none';
     updateTotal();
-  }
+  };
 
   document.getElementById('discount-code').addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); applyDiscount(); }
+    if (e.key === 'Enter') { e.preventDefault(); window.applyDiscount(); }
   });
 
-  // Formulierdata onthouden bij refresh
   const inputs = document.querySelectorAll('input:not([type="hidden"])');
   window.addEventListener('load', () => {
     inputs.forEach(input => {
@@ -282,15 +291,21 @@
     });
   });
 
-  document.getElementById('orderForm').addEventListener('submit', function(e) {
+  document.getElementById('orderForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const btn = document.querySelector('.btn-betaling');
+    btn.disabled = true;
+    btn.textContent = 'Bestelling plaatsen...';
+
     const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
     const totaal = parseFloat(document.getElementById('hidden_total').value);
+
     const order = {
-      id: Date.now(),
-      datum: new Date().toLocaleString(),
+      datum: new Date().toLocaleString('nl-NL'),
       klant: {
-        naam: document.querySelector('[name="voornaam"]').value + ' ' + document.querySelector('[name="tussenvoegsel"]').value + ' ' + document.querySelector('[name="achternaam"]').value,
+        naam: document.querySelector('[name="voornaam"]').value + ' ' +
+              (document.querySelector('[name="tussenvoegsel"]').value ? document.querySelector('[name="tussenvoegsel"]').value + ' ' : '') +
+              document.querySelector('[name="achternaam"]').value,
         email: document.querySelector('[name="email"]').value,
         telefoon: document.querySelector('[name="telefoon"]').value
       },
@@ -301,16 +316,22 @@
       },
       producten: cart,
       totaal: totaal,
-      kortingscode: discountPercent > 0 ? document.getElementById('discount-code').value.toUpperCase() : null,
+      kortingscode: discountPercent > 0 ? document.getElementById('discount-label').textContent.split(' ')[0] : null,
       status: "Nieuw"
     };
-    const orders = JSON.parse(localStorage.getItem('musicmedia_orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('musicmedia_orders', JSON.stringify(orders));
-    localStorage.removeItem('musicmedia_cart');
-    inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
-    alert('Bestelling succesvol geplaatst!');
-    window.location.href = 'homepage.html';
+
+    try {
+      await push(ref(db, 'orders'), order);
+      localStorage.removeItem('musicmedia_cart');
+      inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
+      alert('Bestelling succesvol geplaatst!');
+      window.location.href = 'homepage.html';
+    } catch (err) {
+      console.error('Firebase fout:', err);
+      alert('Er ging iets mis. Probeer het opnieuw.');
+      btn.disabled = false;
+      btn.textContent = 'NU BETALEN';
+    }
   });
 </script>
 

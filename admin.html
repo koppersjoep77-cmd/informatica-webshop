@@ -282,242 +282,115 @@ tr:hover{
 © 2026 MusicMedia
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-function getOrders(){
-    return JSON.parse(
-        localStorage.getItem("musicmedia_orders") || "[]"
-    );
-}
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355"
+  };
 
-function saveOrders(orders){
-    localStorage.setItem(
-        "musicmedia_orders",
-        JSON.stringify(orders)
-    );
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-function loadDashboard(){
+  let allOrders = []; // { firebaseKey, ...orderData }
 
-    const orders = getOrders();
+  async function loadDashboard() {
+    const snapshot = await get(ref(db, 'orders'));
+    allOrders = [];
 
-    document.getElementById("orderCount").textContent =
-        orders.length;
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        allOrders.push({ firebaseKey: child.key, ...child.val() });
+      });
+    }
 
-    const revenue =
-        orders.reduce(
-            (sum,o)=>sum + Number(o.totaal || 0),
-            0
-        );
+    // Stats
+    document.getElementById("orderCount").textContent = allOrders.length;
+    const revenue = allOrders.reduce((sum, o) => sum + Number(o.totaal || 0), 0);
+    document.getElementById("revenue").textContent = "€" + revenue.toFixed(2);
+    const customers = new Set(allOrders.map(o => o.klant?.email || ""));
+    document.getElementById("customerCount").textContent = customers.size;
 
-    document.getElementById("revenue").textContent =
-        "€" + revenue.toFixed(2);
-
-    const customers =
-        new Set(
-            orders.map(
-                o => o.klant?.email || ""
-            )
-        );
-
-    document.getElementById("customerCount").textContent =
-        customers.size;
-
-    const table =
-        document.getElementById("ordersTable");
-
+    // Tabel
+    const table = document.getElementById("ordersTable");
     table.innerHTML = "";
 
-    if(orders.length === 0){
-
-        table.innerHTML =
-        `
-        <tr>
-            <td colspan="6" class="empty">
-                Geen bestellingen gevonden
-            </td>
-        </tr>
-        `;
-
-        return;
+    if (allOrders.length === 0) {
+      table.innerHTML = `<tr><td colspan="6" class="empty">Geen bestellingen gevonden</td></tr>`;
+      return;
     }
 
-    orders.forEach(order => {
-
-        table.innerHTML += `
-        <tr>
-
-            <td>${order.id || "-"}</td>
-
-            <td>
-                ${order.klant?.naam || "-"}<br>
-                <small>
-                ${order.klant?.email || ""}
-                </small>
-            </td>
-
-            <td>
-                ${order.adres?.straat || ""}<br>
-                ${order.adres?.postcode || ""}
-                ${order.adres?.plaats || ""}
-            </td>
-
-            <td>
-                €${Number(order.totaal || 0).toFixed(2)}
-            </td>
-
-            <td>
-                <span class="status">
-                    ${order.status || "Nieuw"}
-                </span>
-            </td>
-
-            <td>
-
-                <button
-                    class="btn view-btn"
-                    onclick="showOrder(${order.id})">
-                    Bekijken
-                </button>
-
-                <button
-                    class="btn delete-btn"
-                    onclick="deleteOrder(${order.id})">
-                    Verwijder
-                </button>
-
-            </td>
-
-        </tr>
-        `;
+    allOrders.forEach(order => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${order.datum || "-"}</td>
+        <td>${order.klant?.naam || "-"}<br><small>${order.klant?.email || ""}</small></td>
+        <td>${order.adres?.straat || ""}<br>${order.adres?.postcode || ""} ${order.adres?.plaats || ""}</td>
+        <td>€${Number(order.totaal || 0).toFixed(2)}</td>
+        <td><span class="status">${order.status || "Nieuw"}</span></td>
+        <td>
+          <button class="btn view-btn">Bekijken</button>
+          <button class="btn delete-btn" style="margin-left:5px;">Verwijder</button>
+        </td>
+      `;
+      row.querySelector('.view-btn').addEventListener('click', () => showOrder(order.firebaseKey));
+      row.querySelector('.delete-btn').addEventListener('click', () => deleteOrder(order.firebaseKey));
+      table.appendChild(row);
     });
-}
+  }
 
-function showOrder(id){
-
-    const orders = getOrders();
-
-    const order =
-        orders.find(
-            o => Number(o.id) === Number(id)
-        );
-
-    if(!order) return;
+  window.showOrder = function(key) {
+    const order = allOrders.find(o => o.firebaseKey === key);
+    if (!order) return;
 
     let html = `
+      <div class="section"><h3>Klantgegevens</h3>
+        <p><strong>Naam:</strong> ${order.klant?.naam || "-"}</p>
+        <p><strong>Email:</strong> ${order.klant?.email || "-"}</p>
+        <p><strong>Telefoon:</strong> ${order.klant?.telefoon || "-"}</p>
+      </div>
+      <div class="section"><h3>Adres</h3>
+        <p>${order.adres?.straat || ""}<br>${order.adres?.postcode || ""}<br>${order.adres?.plaats || ""}</p>
+      </div>
+      <div class="section"><h3>Producten</h3>`;
 
-    <div class="section">
-        <h3>Klantgegevens</h3>
-
-        <p>
-        <strong>Naam:</strong>
-        ${order.klant?.naam || "-"}
-        </p>
-
-        <p>
-        <strong>Email:</strong>
-        ${order.klant?.email || "-"}
-        </p>
-
-        <p>
-        <strong>Telefoon:</strong>
-        ${order.klant?.telefoon || "-"}
-        </p>
-    </div>
-
-    <div class="section">
-        <h3>Adres</h3>
-
-        <p>
-        ${order.adres?.straat || ""}
-        <br>
-        ${order.adres?.postcode || ""}
-        <br>
-        ${order.adres?.plaats || ""}
-        </p>
-    </div>
-
-    <div class="section">
-        <h3>Producten</h3>
-    `;
-
-    (order.producten || []).forEach(product => {
-
-        html += `
-        <div class="product-item">
-
-            <strong>
-            ${product.name || ""}
-            </strong>
-
-            <br>
-
-            ${product.artist || ""}
-
-            <br>
-
-            Aantal:
-            ${product.qty || 1}
-
-            <br>
-
-            €${Number(product.price || 0).toFixed(2)}
-
-        </div>
-        `;
+    (order.producten || []).forEach(p => {
+      html += `<div class="product-item">
+        <strong>${p.name || ""}</strong><br>
+        ${p.artist || ""}<br>
+        Aantal: ${p.qty || 1}<br>
+        €${Number(p.price || 0).toFixed(2)}
+      </div>`;
     });
 
-    html += `
-    </div>
-
-    <div class="section">
-        <h3>Totaal</h3>
-
-        <strong>
-        €${Number(order.totaal || 0).toFixed(2)}
-        </strong>
-    </div>
-    `;
-
-    document.getElementById(
-        "orderDetails"
-    ).innerHTML = html;
-
-    document.getElementById(
-        "modal"
-    ).style.display = "flex";
-}
-
-function closeModal(){
-
-    document.getElementById(
-        "modal"
-    ).style.display = "none";
-}
-
-function deleteOrder(id){
-
-    if(
-        !confirm(
-            "Weet je zeker dat je deze bestelling wilt verwijderen?"
-        )
-    ){
-        return;
+    if (order.kortingscode) {
+      html += `<div class="section"><p><strong>Kortingscode:</strong> ${order.kortingscode}</p></div>`;
     }
 
-    let orders = getOrders();
+    html += `<div class="section"><h3>Totaal</h3><strong>€${Number(order.totaal || 0).toFixed(2)}</strong></div>`;
 
-    orders = orders.filter(
-        o => Number(o.id) !== Number(id)
-    );
+    document.getElementById("orderDetails").innerHTML = html;
+    document.getElementById("modal").style.display = "flex";
+  };
 
-    saveOrders(orders);
-
+  window.deleteOrder = async function(key) {
+    if (!confirm("Weet je zeker dat je deze bestelling wilt verwijderen?")) return;
+    await remove(ref(db, `orders/${key}`));
     loadDashboard();
-}
+  };
 
-loadDashboard();
+  window.closeModal = function() {
+    document.getElementById("modal").style.display = "none";
+  };
 
+  loadDashboard();
 </script>
 
 </body>
