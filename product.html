@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title id="pagetitle">Product - MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+
+<style>
+    /* --- BASIS STIJL (Huisstijl MusicMedia) --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; line-height: 1.6; }
+
+    .bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+    /* Navigatie & Hero (Hetzelfde als homepage/bestelpagina) */
+    .topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+    .topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+    .topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+    .topbar a:hover { color: #e7aa3d; }
+
+    .small-hero { position: relative; height: 160px; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
+    .hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1a0a00 0%, #3d2000 40%, #5a3b00 70%, #2a1500 100%); }
+    .hero-logo { height: 70px; position: relative; z-index: 2; filter: drop-shadow(0 4px 15px rgba(231,170,61,0.3)); }
+
+    /* Winkelwagen icoon met gloed */
+    .cart-icon { 
+      position: fixed; top: 30px; right: 20px; z-index: 100; 
+      background: rgba(255, 255, 255, 0.9); padding: 8px; border-radius: 50%; 
+      box-shadow: 0 0 15px rgba(231, 170, 61, 0.5); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; text-decoration: none;
+    }
+    .cart-icon:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(231, 170, 61, 0.8); }
+    .cart-badge { 
+      position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; 
+      border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; 
+      display: none; align-items: center; justify-content: center; 
+    }
+
+    /* Product Content */
+    .content {
+        display: flex;
+        max-width: 1000px;
+        margin: 40px auto;
+        gap: 50px;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+
+    .foto-container { flex: 1; }
+    .foto {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        display: block;
+    }
+
+    .tekst { flex: 1.2; }
+    h1#titel { 
+        font-family: 'Franklin Gothic Medium', Arial, sans-serif; 
+        font-size: 32px; margin-bottom: 5px; color: #1a1a1a; 
+    }
+    .artist-name { font-size: 18px; color: #777; margin-bottom: 20px; }
+    
+    .prijs-tag {
+        font-size: 28px;
+        color: #5a3b00;
+        font-weight: 800;
+        margin: 20px 0;
+        display: block;
+    }
+
+    .info-rij { border-top: 1px solid #eee; padding: 15px 0; font-size: 14px; }
+    .info-rij strong { color: #5a3b00; width: 100px; display: inline-block; text-transform: uppercase; font-size: 12px; }
+
+    /* Button */
+    .add-to-cart {
+        margin-top: 30px;
+        padding: 18px;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 700;
+        background-color: #e7aa3d;
+        border: none;
+        border-radius: 30px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(231,170,61,0.3);
+    }
+
+    .add-to-cart:hover {
+        background-color: #5a3b00;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(90,59,0,0.3);
+    }
+
+    .footer { background: #1a0a00; color: rgba(255,255,255,0.4); text-align: center; padding: 30px; font-size: 11px; margin-top: 60px; }
+</style>
+</head>
+
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <img src="photos/cart.png" alt="Winkelwagen" style="height: 30px;">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="homepage.html">Home</a></li>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="#">Hi-Fi</a></li>
+  </ul>
+</nav>
+
+<div class="small-hero">
+    <div class="hero-bg"></div>
+    <a href="homepage.html"><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
+</div>
+
+<div class="content">
+    <div class="foto-container">
+        <img id="foto" class="foto" src="" alt="Product afbeelding">
+    </div>
+    
+    <div class="tekst">
+        <h1 id="titel">Product</h1>
+        <div class="artist-name" id="artist"></div>
+
+        <span class="prijs-tag">€<span id="prijs"></span></span>
+
+        <div class="info-rij"><strong>Label</strong> <span id="label"></span></div>
+        <div class="info-rij"><strong>Album</strong> <span id="album"></span></div>
+        <div class="info-rij">
+            <strong>Info</strong> 
+            <p id="beschrijving" style="margin-top:10px; color:#555;"></p>
+        </div>
+        
+        <button class="add-to-cart">IN WINKELWAGEN</button>
+    </div>
+</div>
+
+<div class="footer">© 2025 MUSICMEDIA — Voor de echte muziekliefhebber</div>
+
+<script>
+// 1. DATA OPHALEN UIT URL
+const params = new URLSearchParams(window.location.search);
+const naam = params.get("naam");
+const artist = params.get("artist");
+const prijs = params.get("prijs");
+const image = params.get("image");
+const label = params.get("label");
+
+if(naam){
+    document.getElementById("titel").textContent = naam;
+    document.getElementById("album").textContent = naam;
+    document.getElementById("artist").textContent = artist;
+    document.getElementById("prijs").textContent = parseFloat(prijs).toFixed(2);
+    document.getElementById("foto").src = image;
+    document.getElementById("label").textContent = label;
+    document.getElementById("beschrijving").textContent = 
+        `De langverwachte release van ${naam} door ${artist}. Dit album op hoogwaardig vinyl/CD is een absolute aanwinst voor elke collectie. Geperst onder het label ${label}.`;
+    
+    document.getElementById("pagetitle").textContent = naam + " - " + artist;
+}
+
+// 2. WINKELWAGEN FUNCTIES
+function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+
+function saveCart(cart) {
+  localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
+  updateCartIcon();
+}
+
+function addToCart(product) {
+  const cart = getCart();
+  const existing = cart.find(item => item.name === product.name && item.artist === product.artist);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ ...product, qty: 1 });
+  }
+  saveCart(cart);
+  showToast(`"${product.name}" toegevoegd aan je mandje!`);
+}
+
+function updateCartIcon() {
+  const cart = getCart();
+  const total = cart.reduce((sum, item) => sum + item.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) {
+    badge.textContent = total;
+    badge.style.display = total > 0 ? 'flex' : 'none';
+  }
+}
+
+function showToast(message) {
+  const old = document.getElementById('toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = message;
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+
+document.querySelector('.add-to-cart').addEventListener('click', () => {
+    addToCart({
+        name: naam,
+        artist: artist,
+        price: parseFloat(prijs),
+        image: image,
+        label: label
+    });
+});
+
+// Start de pagina met de juiste icoon status
+updateCartIcon();
+</script>
+
+</body>
+</html>

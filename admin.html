@@ -1,0 +1,525 @@
+```html
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MusicMedia Admin</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f5f3ef;
+    color:#1a1a1a;
+}
+
+.bar{
+    background:#5a3b00;
+    color:white;
+    text-align:center;
+    padding:8px;
+    font-size:13px;
+}
+
+.header{
+    background:linear-gradient(
+        135deg,
+        #1a0a00 0%,
+        #3d2000 40%,
+        #5a3b00 70%,
+        #2a1500 100%
+    );
+    color:white;
+    padding:30px;
+}
+
+.header h1{
+    font-size:32px;
+}
+
+.header p{
+    opacity:0.8;
+    margin-top:6px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:30px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.stat-card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    border:1px solid #e7e7e7;
+    box-shadow:0 3px 10px rgba(0,0,0,.04);
+}
+
+.stat-title{
+    color:#888;
+    font-size:13px;
+}
+
+.stat-value{
+    font-size:30px;
+    margin-top:8px;
+    font-weight:bold;
+    color:#5a3b00;
+}
+
+.orders-box{
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid #e7e7e7;
+}
+
+.orders-header{
+    padding:20px;
+    border-bottom:1px solid #eee;
+}
+
+.orders-header h2{
+    color:#5a3b00;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#fafafa;
+    padding:15px;
+    text-align:left;
+    font-size:13px;
+}
+
+td{
+    padding:15px;
+    border-top:1px solid #eee;
+    vertical-align:top;
+}
+
+tr:hover{
+    background:#fcfbf9;
+}
+
+.status{
+    background:#e7aa3d;
+    color:white;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.btn{
+    border:none;
+    cursor:pointer;
+    padding:8px 14px;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
+}
+
+.view-btn{
+    background:#e7aa3d;
+}
+
+.view-btn:hover{
+    background:darkorange;
+}
+
+.delete-btn{
+    background:#d9534f;
+    margin-left:5px;
+}
+
+.delete-btn:hover{
+    background:#c9302c;
+}
+
+.empty{
+    text-align:center;
+    padding:40px;
+    color:#888;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.modal-content{
+    background:white;
+    width:700px;
+    max-width:90%;
+    border-radius:14px;
+    padding:25px;
+    max-height:80vh;
+    overflow:auto;
+}
+
+.close{
+    float:right;
+    font-size:25px;
+    cursor:pointer;
+}
+
+.section{
+    margin-top:20px;
+}
+
+.section h3{
+    color:#5a3b00;
+    margin-bottom:10px;
+}
+
+.product-item{
+    padding:8px 0;
+    border-bottom:1px solid #eee;
+}
+
+.footer{
+    margin-top:30px;
+    text-align:center;
+    color:#777;
+    padding:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+🎵 MusicMedia Admin Dashboard
+</div>
+
+<div class="header">
+<h1>Bestellingen</h1>
+<p>Overzicht van alle orders</p>
+</div>
+
+<div class="container">
+
+<div class="stats">
+
+<div class="stat-card">
+<div class="stat-title">Bestellingen</div>
+<div class="stat-value" id="orderCount">0</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-title">Omzet</div>
+<div class="stat-value" id="revenue">€0</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-title">Klanten</div>
+<div class="stat-value" id="customerCount">0</div>
+</div>
+
+</div>
+
+<div class="orders-box">
+
+<div class="orders-header">
+<h2>Alle bestellingen</h2>
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Klant</th>
+<th>Adres</th>
+<th>Totaal</th>
+<th>Status</th>
+<th>Acties</th>
+</tr>
+</thead>
+
+<tbody id="ordersTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-content">
+
+<span class="close" onclick="closeModal()">&times;</span>
+
+<h2>Bestelling details</h2>
+
+<div id="orderDetails"></div>
+
+</div>
+</div>
+
+<div class="footer">
+© 2026 MusicMedia
+</div>
+
+<script>
+
+function getOrders(){
+    return JSON.parse(
+        localStorage.getItem("musicmedia_orders") || "[]"
+    );
+}
+
+function saveOrders(orders){
+    localStorage.setItem(
+        "musicmedia_orders",
+        JSON.stringify(orders)
+    );
+}
+
+function loadDashboard(){
+
+    const orders = getOrders();
+
+    document.getElementById("orderCount").textContent =
+        orders.length;
+
+    const revenue =
+        orders.reduce(
+            (sum,o)=>sum + Number(o.totaal || 0),
+            0
+        );
+
+    document.getElementById("revenue").textContent =
+        "€" + revenue.toFixed(2);
+
+    const customers =
+        new Set(
+            orders.map(
+                o => o.klant?.email || ""
+            )
+        );
+
+    document.getElementById("customerCount").textContent =
+        customers.size;
+
+    const table =
+        document.getElementById("ordersTable");
+
+    table.innerHTML = "";
+
+    if(orders.length === 0){
+
+        table.innerHTML =
+        `
+        <tr>
+            <td colspan="6" class="empty">
+                Geen bestellingen gevonden
+            </td>
+        </tr>
+        `;
+
+        return;
+    }
+
+    orders.forEach(order => {
+
+        table.innerHTML += `
+        <tr>
+
+            <td>${order.id || "-"}</td>
+
+            <td>
+                ${order.klant?.naam || "-"}<br>
+                <small>
+                ${order.klant?.email || ""}
+                </small>
+            </td>
+
+            <td>
+                ${order.adres?.straat || ""}<br>
+                ${order.adres?.postcode || ""}
+                ${order.adres?.plaats || ""}
+            </td>
+
+            <td>
+                €${Number(order.totaal || 0).toFixed(2)}
+            </td>
+
+            <td>
+                <span class="status">
+                    ${order.status || "Nieuw"}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="btn view-btn"
+                    onclick="showOrder(${order.id})">
+                    Bekijken
+                </button>
+
+                <button
+                    class="btn delete-btn"
+                    onclick="deleteOrder(${order.id})">
+                    Verwijder
+                </button>
+
+            </td>
+
+        </tr>
+        `;
+    });
+}
+
+function showOrder(id){
+
+    const orders = getOrders();
+
+    const order =
+        orders.find(
+            o => Number(o.id) === Number(id)
+        );
+
+    if(!order) return;
+
+    let html = `
+
+    <div class="section">
+        <h3>Klantgegevens</h3>
+
+        <p>
+        <strong>Naam:</strong>
+        ${order.klant?.naam || "-"}
+        </p>
+
+        <p>
+        <strong>Email:</strong>
+        ${order.klant?.email || "-"}
+        </p>
+
+        <p>
+        <strong>Telefoon:</strong>
+        ${order.klant?.telefoon || "-"}
+        </p>
+    </div>
+
+    <div class="section">
+        <h3>Adres</h3>
+
+        <p>
+        ${order.adres?.straat || ""}
+        <br>
+        ${order.adres?.postcode || ""}
+        <br>
+        ${order.adres?.plaats || ""}
+        </p>
+    </div>
+
+    <div class="section">
+        <h3>Producten</h3>
+    `;
+
+    (order.producten || []).forEach(product => {
+
+        html += `
+        <div class="product-item">
+
+            <strong>
+            ${product.name || ""}
+            </strong>
+
+            <br>
+
+            ${product.artist || ""}
+
+            <br>
+
+            Aantal:
+            ${product.qty || 1}
+
+            <br>
+
+            €${Number(product.price || 0).toFixed(2)}
+
+        </div>
+        `;
+    });
+
+    html += `
+    </div>
+
+    <div class="section">
+        <h3>Totaal</h3>
+
+        <strong>
+        €${Number(order.totaal || 0).toFixed(2)}
+        </strong>
+    </div>
+    `;
+
+    document.getElementById(
+        "orderDetails"
+    ).innerHTML = html;
+
+    document.getElementById(
+        "modal"
+    ).style.display = "flex";
+}
+
+function closeModal(){
+
+    document.getElementById(
+        "modal"
+    ).style.display = "none";
+}
+
+function deleteOrder(id){
+
+    if(
+        !confirm(
+            "Weet je zeker dat je deze bestelling wilt verwijderen?"
+        )
+    ){
+        return;
+    }
+
+    let orders = getOrders();
+
+    orders = orders.filter(
+        o => Number(o.id) !== Number(id)
+    );
+
+    saveOrders(orders);
+
+    loadDashboard();
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
+```

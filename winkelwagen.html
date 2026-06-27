@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Winkelwagen – MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.small-hero { position: relative; height: 160px; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1a0a00 0%, #3d2000 40%, #5a3b00 70%, #2a1500 100%); }
+.hero-logo { height: 200px; position: relative; z-index: 2; filter: drop-shadow(0 4px 15px rgba(231,170,61,0.3)); }
+
+h1 { text-align: center; margin-top: 30px; font-family: 'Franklin Gothic Medium', Arial, sans-serif; font-size: 28px; }
+
+/* Cart Layout */
+.cart-container { max-width: 900px; margin: 30px auto 60px; padding: 0 20px; }
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: box-shadow 0.2s;
+}
+.cart-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+/* Foto fix: contain zorgt dat niets wordt afgesneden */
+.cart-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain; 
+  background: #fff;
+  border-radius: 6px;
+}
+
+.cart-item-info { flex: 1; }
+.cart-item-info strong { display: block; font-size: 16px; margin-bottom: 4px; }
+.cart-item-info span { font-size: 14px; color: #777; }
+
+.qty-controls { display: flex; align-items: center; gap: 12px; background: #f9f9f9; padding: 5px 10px; border-radius: 20px; border: 1px solid #eee; }
+.qty-btn {
+  background: none; border: none; width: 24px; height: 24px; font-size: 18px; 
+  cursor: pointer; color: #5a3b00; display: flex; align-items: center; justify-content: center;
+}
+.qty-btn:hover { color: #e7aa3d; }
+.qty-num { font-size: 14px; font-weight: bold; min-width: 20px; text-align: center; }
+
+.cart-item-price { font-size: 16px; font-weight: bold; color: #1a1a1a; min-width: 90px; text-align: right; }
+
+.remove-btn {
+  background: none; border: none; color: #bbb; font-size: 24px;
+  cursor: pointer; padding: 0 10px; transition: color 0.2s;
+}
+.remove-btn:hover { color: #e74c3c; }
+
+/* Samenvatting */
+.cart-summary { background: white; border: 1px solid #e8e8e8; border-radius: 12px; padding: 25px; margin-top: 30px; }
+.summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+.summary-row.total { font-weight: bold; font-size: 20px; border-top: 2px solid #f5f3ef; padding-top: 15px; margin-top: 10px; color: #5a3b00; }
+
+.checkout-btn {
+  display: block; width: 100%; margin-top: 20px;
+  padding: 16px; background: #e7aa3d; color: white;
+  border: none; border-radius: 10px; font-size: 16px;
+  font-weight: bold; cursor: pointer; text-align: center; transition: background 0.2s;
+}
+.checkout-btn:hover { background: #5a3b00; }
+
+.cart-empty { text-align: center; padding: 80px 20px; }
+.cart-empty p { color: #999; margin-bottom: 20px; }
+.cart-empty a { color: #e7aa3d; text-decoration: none; font-weight: bold; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.4); text-align: center; padding: 30px; font-size: 11px; margin-top: 60px; }
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; VEILIG betalen &nbsp;|&nbsp; 30 dagen retourrecht ✦</div>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="homepage.html">Home</a></li>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="#">Hi-Fi</a></li>
+  </ul>
+</nav>
+
+<div class="small-hero">
+    <div class="hero-bg"></div>
+    <a href="homepage.html "><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
+</div>
+
+<h1>Jouw winkelwagen</h1>
+
+<div class="cart-container">
+  <div id="cart-content"></div>
+</div>
+
+<div class="footer">© 2025 MUSICMEDIA — UW AUDIO SPECIALIST</div>
+
+<script>
+function getCart() {
+  return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+}
+function saveCart(cart) {
+  localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
+  render();
+}
+
+function render() {
+  const cart = getCart();
+  const el = document.getElementById('cart-content');
+
+  if (cart.length === 0) {
+    el.innerHTML = `
+      <div class="cart-empty">
+        <p style="font-size:64px;">🛒</p>
+        <p>Je winkelwagen is momenteel leeg.</p>
+        <a href="vinyl.html">← Ontdek onze collectie</a>
+      </div>`;
+    return;
+  }
+
+  const subtotaal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const bezorging = subtotaal >= 50 ? 0 : 4.95;
+  const totaal = subtotaal + bezorging;
+
+  const itemsHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <img src="${item.image}" alt="${item.name}">
+      <div class="cart-item-info">
+        <strong>${item.name}</strong>
+        <span>${item.artist || item.brand || ''}</span>
+      </div>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+      </div>
+      <div class="cart-item-price">€${(item.price * item.qty).toFixed(2)}</div>
+      <button class="remove-btn" onclick="removeItem(${idx})" title="Verwijderen">×</button>
+    </div>
+  `).join('');
+
+  el.innerHTML = itemsHTML + `
+    <div class="cart-summary">
+      <div class="summary-row"><span>Subtotaal</span><span>€${subtotaal.toFixed(2)}</span></div>
+      <div class="summary-row"><span>Bezorgkosten</span><span>${bezorging === 0 ? '<span style="color:green; font-weight:bold;">Gratis</span>' : '€' + bezorging.toFixed(2)}</span></div>
+      <div class="summary-row total"><span>Totaal incl. BTW</span><span>€${totaal.toFixed(2)}</span></div>
+      <button class="checkout-btn" onclick="window.location.href='betaling.html'">AFREKENEN</button>
+      <p style="text-align:center; margin-top:20px;"><a href="vinyl.html" style="color:#777; font-size:13px; text-decoration:none;">← Verder winkelen</a></p>
+    </div>
+  `;
+}
+
+function changeQty(idx, delta) {
+  const cart = getCart();
+  cart[idx].qty += delta;
+  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  saveCart(cart);
+}
+
+function removeItem(idx) {
+  const cart = getCart();
+  cart.splice(idx, 1);
+  saveCart(cart);
+}
+
+// Start de render
+render();
+</script>
+</body>
+</html>

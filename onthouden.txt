@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>musicmedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; letter-spacing: 0.3px; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.hero { position: relative; height: 320px; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1a0a00 0%, #3d2000 40%, #5a3b00 70%, #2a1500 100%); }
+.hero-overlay { position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(231,170,61,0.03) 40px, rgba(231,170,61,0.03) 80px); }
+.hero-content { position: relative; z-index: 2; text-align: center; }
+.hero-logo { height: 100px; filter: drop-shadow(0 4px 20px rgba(231,170,61,0.4)); }
+.hero-tagline { color: rgba(255,255,255,0.7); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-top: 12px; }
+.hero-search { margin-top: 20px; display: flex; gap: 0; justify-content: center; }
+.hero-search input { padding: 11px 18px; width: 260px; font-size: 14px; border: none; border-radius: 25px 0 0 25px; outline: none; background: rgba(255,255,255,0.95); }
+.hero-search button { padding: 11px 20px; background: #e7aa3d; color: white; border: none; border-radius: 0 25px 25px 0; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+.hero-search button:hover { background: darkorange; }
+
+.cart-icon { position: fixed; top: 30px; right: 20px; z-index: 100; }
+.cart-icon img { height: 36px; }
+.cart-badge { position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: none; align-items: center; justify-content: center; }
+
+.section { padding: 36px 32px; }
+.section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.section-title { font-family: 'Franklin Gothic Medium', Arial, sans-serif; font-size: 20px; font-weight: 700; color: #1a1a1a; }
+.section-link { color: #e7aa3d; font-size: 13px; text-decoration: none; }
+.section-link:hover { text-decoration: underline; }
+
+.vinyl-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.vinyl-scroll::-webkit-scrollbar { display: none; }
+.vinyl-card { min-width: 160px; background: white; border-radius: 12px; border: 1px solid #e8e8e8; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; flex-shrink: 0; }
+.vinyl-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-color: #e7aa3d; }
+.vinyl-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.vinyl-card-body { padding: 10px 12px 12px; }
+.vinyl-card-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #1a1a1a; }
+.vinyl-card-artist { font-size: 12px; color: #777; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vinyl-card-price { font-size: 13px; font-weight: 700; color: #5a3b00; margin-top: 6px; }
+.vinyl-card-btn { width: 100%; margin-top: 8px; padding: 7px; background: #e7aa3d; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+.vinyl-card-btn:hover { background: darkorange; }
+
+.promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.promo-card { border-radius: 14px; overflow: hidden; position: relative; height: 200px; cursor: pointer; }
+.promo-card-bg { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+.promo-card:hover .promo-card-bg { transform: scale(1.04); }
+.promo-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%); display: flex; align-items: flex-end; padding: 16px; }
+.promo-card-label { color: white; font-weight: 700; font-size: 15px; letter-spacing: 0.3px; }
+.promo-card-sub { color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 2px; }
+
+.genres { display: flex; gap: 10px; flex-wrap: wrap; }
+.genre-pill { padding: 10px 20px; border-radius: 25px; border: 1.5px solid #ddd; background: white; font-size: 13px; cursor: pointer; font-weight: 500; transition: all 0.2s; color: #333; text-decoration: none; display: inline-block; }
+.genre-pill:hover { background: #e7aa3d; color: white; border-color: #e7aa3d; }
+
+.usp-bar { background: white; border-top: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; display: flex; justify-content: center; gap: 48px; padding: 20px 32px; }
+.usp-item { display: flex; align-items: center; gap: 10px; }
+.usp-icon { width: 32px; height: 32px; background: #fdf3e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.usp-text strong { display: block; font-size: 13px; color: #1a1a1a; }
+.usp-text span { font-size: 12px; color: #888; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht &nbsp;|&nbsp; Klantenservice: 06 67676767 ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative;display:inline-block;">
+    <img src="photos/cart.png" alt="Winkelwagen">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="#">Hi-Fi</a></li>
+    <li><a href="#">Accessoires</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <img src="photos/musicmedia_logo.png" class="hero-logo" alt="MusicMedia">
+    <p class="hero-tagline">Vinyl · CD · Hi-Fi · Speakers</p>
+    <form class="hero-search" onsubmit="handleSearch(event)">
+      <input id="search-input" type="text" placeholder="Zoek op artiest of album…">
+      <button type="submit">Zoeken</button>
+    </form>
+  </div>
+</div>
+
+<div class="usp-bar">
+  <div class="usp-item">
+    <div class="usp-icon">🚚</div>
+    <div class="usp-text"><strong>Gratis verzending</strong><span>Vanaf €50</span></div>
+  </div>
+  <div class="usp-item">
+    <div class="usp-icon">↩️</div>
+    <div class="usp-text"><strong>30 dagen retour</strong><span>Geen gedoe</span></div>
+  </div>
+  <div class="usp-item">
+    <div class="usp-icon">🎵</div>
+    <div class="usp-text"><strong>Curated selectie</strong><span>Door muziekliefhebbers</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Nieuwe releases</span>
+    <a href="vinyl.html" class="section-link">Bekijk alles →</a>
+  </div>
+  <div class="vinyl-scroll" id="vinyl-scroll"></div>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <div class="section-header">
+    <span class="section-title">Shop per genre</span>
+  </div>
+  <div class="genres">
+    <a href="vinyl.html" class="genre-pill">🎤 Hip-Hop</a>
+    <a href="vinyl.html" class="genre-pill">🎸 Rock</a>
+    <a href="vinyl.html" class="genre-pill">🎹 Pop</a>
+    <a href="vinyl.html" class="genre-pill">🎷 R&B</a>
+    <a href="vinyl.html" class="genre-pill">🎻 Klassiek</a>
+    <a href="vinyl.html" class="genre-pill">🎺 Jazz</a>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <div class="section-header">
+    <span class="section-title">Ontdek</span>
+  </div>
+  <div class="promo-grid">
+    <a href="speakers.html" class="promo-card" style="text-decoration:none;">
+      <img src="photos/SX50.webp" class="promo-card-bg" alt="Speakers">
+      <div class="promo-card-overlay">
+        <div>
+          <div class="promo-card-label">Speakers</div>
+          <div class="promo-card-sub">Passief & actief</div>
+        </div>
+      </div>
+    </a>
+    <a href="vinyl.html" class="promo-card" style="text-decoration:none;">
+      <img src="photos/TPAB.jpg" class="promo-card-bg" alt="Vinyl">
+      <div class="promo-card-overlay">
+        <div>
+          <div class="promo-card-label">Vinyl collectie</div>
+          <div class="promo-card-sub">Meer dan 100 titels</div>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="footer">© 2025 MusicMedia — Voor de echte muziekliefhebber</div>
+
+<script>
+const products = [
+  {name: "Don't Be Dumb", artist: "A$AP ROCKY", price: 34.99, image: "photos/asap rocky.jpg", label:"ROCKY Worldwide"},
+  {name: "Goldfish", artist: "Hit-Boy & The Alchemist", price: 39.99, image: "photos/goldfish.jpg", label:"EMPIRE"},
+  {name: "Samen is leuker dan alleen", artist: "Flemming", price: 29.99, image: "photos/samen is leuker dan alleen.png", label:"No Label"},
+  {name: "Bully", artist: "Kanye West", price: 29.99, image: "photos/bully.jpg", label:"GAMMA."},
+  {name: "A matter of time", artist: "Laufey", price: 39.99, image: "photos/laufey.jpg", label:"Vingolf Recordings"},
+  {name: "Icon", artist: "Brent Faiyaz", price: 34.99, image: "photos/icon.webp", label:"ISO Supremacy"},
+  {name: "Ca$ino", artist: "Baby Keem", price: 29.99, image: "photos/ca$ino.jpg", label:"Columbia"},
+  {name: "The Mountain", artist: "Gorillaz", price: 39.99, image: "photos/Mountain.jpg", label:"No Label"},
+  {name: "The Romantic", artist: "Bruno Mars", price: 34.99, image: "photos/romantic.jpg", label:"ATLANTIC"},
+];
+
+function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+function saveCart(cart) { localStorage.setItem('musicmedia_cart', JSON.stringify(cart)); updateCartIcon(); }
+
+function addToCart(product) {
+  const cart = getCart();
+  const existing = cart.find(i => i.name === product.name && i.artist === product.artist);
+  if (existing) existing.qty++;
+  else cart.push({ ...product, qty: 1 });
+  saveCart(cart);
+  showToast(`"${product.name}" toegevoegd!`);
+}
+
+function updateCartIcon() {
+  const cart = getCart();
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+}
+
+function showToast(msg) {
+  const old = document.getElementById('toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+
+function handleSearch(e) {
+  e.preventDefault();
+  const q = document.getElementById('search-input').value;
+  if (q) window.location.href = `vinyl.html?search=${encodeURIComponent(q)}`;
+}
+
+const scroll = document.getElementById('vinyl-scroll');
+products.forEach(p => {
+  const div = document.createElement('div'); div.className = 'vinyl-card';
+  const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
+  div.innerHTML = `
+    <a href="${url}" style="text-decoration:none;color:inherit;">
+      <img src="${p.image}" alt="${p.name}">
+      <div class="vinyl-card-body">
+        <div class="vinyl-card-name">${p.name}</div>
+        <div class="vinyl-card-artist">${p.artist}</div>
+        <div class="vinyl-card-price">€${p.price.toFixed(2)}</div>
+      </div>
+    </a>
+    <div style="padding:0 12px 12px;">
+      <button class="vinyl-card-btn">In winkelwagen</button>
+    </div>`;
+  div.querySelector('.vinyl-card-btn').addEventListener('click', () => addToCart(p));
+  scroll.appendChild(div);
+});
+
+updateCartIcon();
+</script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Inloggen – MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; letter-spacing: 0.3px; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.cart-icon, .account-icon {
+  position: fixed; top: 30px; z-index: 100;
+  background: rgba(255,255,255,0.9); padding: 8px; border-radius: 50%;
+  box-shadow: 0 0 15px rgba(231,170,61,0.5);
+  display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+}
+.cart-icon { right: 20px; }
+.account-icon { right: 70px; }
+.cart-icon:hover, .account-icon:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(231,170,61,0.8); }
+.cart-badge { position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: none; align-items: center; justify-content: center; }
+
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(90,59,0,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(231,170,61,0.07) 0%, transparent 50%),
+    #f5f3ef;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.login-brand .logo-ring {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, #5a3b00, #e7aa3d);
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 20px rgba(231,170,61,0.35);
+  margin-bottom: 16px;
+}
+.login-brand h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  color: #1a1a1a;
+  letter-spacing: 0.3px;
+}
+.login-brand p {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 36px 36px;
+  box-shadow: 0 2px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(231,170,61,0.1);
+}
+         
+.tabs {
+  display: flex;
+  background: #f5f3ef;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 32px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.tab-btn.active {
+  background: white;
+  color: #1a1a1a;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+.form-section { display: none; }
+.form-section.active { display: block; }
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 7px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.field input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.field input:focus {
+  border-color: #e7aa3d;
+  box-shadow: 0 0 0 3px rgba(231,170,61,0.12);
+  background: white;
+}
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.forgot {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  color: #e7aa3d;
+  text-decoration: none;
+  margin-top: -10px;
+  margin-bottom: 22px;
+}
+.forgot:hover { text-decoration: underline; }
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #5a3b00, #8a5c00);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #3d2700, #6b4600);
+  box-shadow: 0 4px 16px rgba(90,59,0,0.3);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 0;
+  font-size: 12px; color: #bbb;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: #eee;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  color: #333;
+}
+.btn-secondary:hover { border-color: #e7aa3d; background: #fffdf7; }
+
+.terms {
+  margin-top: 16px;
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.6;
+}
+.terms a { color: #e7aa3d; text-decoration: none; }
+.terms a:hover { text-decoration: underline; }
+
+.pw-strength { margin-top: 6px; display: flex; gap: 4px; }
+.pw-bar { height: 3px; flex: 1; border-radius: 2px; background: #eee; transition: background 0.3s; }
+.pw-bar.weak { background: #e74c3c; }
+.pw-bar.medium { background: #f39c12; }
+.pw-bar.strong { background: #27ae60; }
+
+.success-msg {
+  display: none;
+  text-align: center;
+  padding: 20px 0;
+  animation: fadeIn 0.4s ease;
+}
+.success-msg .checkmark {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(39,174,96,0.3);
+}
+.success-msg h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px; }
+.success-msg p { color: #888; font-size: 13px; }
+.success-msg .btn-primary { margin-top: 24px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht &nbsp;|&nbsp; Klantenservice: 06 67676767 ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <img src="photos/cart.png" alt="Winkelwagen" style="height:30px; width:auto;">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<a href="account.html" class="account-icon">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <img src="photos/account.png" alt="Account" style="height:30px; width:auto;">
+  </div>
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="#">Hi-Fi</a></li>
+    <li><a href="#">Accessoires</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="login-wrap">
+
+    <div class="login-brand">
+      <div class="logo-ring">🎵</div>
+      <h1>MusicMedia</h1>
+      <p>Jouw account voor alles in muziek &amp; hi-fi</p>
+    </div>
+
+    <div class="card">
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Inloggen</button>
+        <button class="tab-btn" onclick="switchTab('register')">Registreren</button>
+      </div>
+
+      <div class="form-section active" id="tab-login">
+        <div id="login-form">
+          <div class="field">
+            <label>E-mailadres</label>
+            <input type="email" id="login-email" placeholder="jij@voorbeeld.nl" autocomplete="email">
+          </div>
+          <div class="field">
+            <label>Wachtwoord</label>
+            <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <a href="#" class="forgot">Wachtwoord vergeten?</a>
+          <button class="btn-primary" onclick="handleLogin()">Inloggen</button>
+          <div class="divider">of</div>
+          <button class="btn-secondary" onclick="showToast('Google login niet beschikbaar in demo')">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Doorgaan met Google
+          </button>
+        </div>
+        <div class="success-msg" id="login-success">
+          <div class="checkmark">✓</div>
+          <h3>Welkom terug!</h3>
+          <p>Je bent succesvol ingelogd bij MusicMedia.</p>
+          <button class="btn-primary" onclick="window.location.href='homepage.html'">Naar de winkel →</button>
+        </div>
+      </div>
+
+      <div class="form-section" id="tab-register">
+        <div id="register-form">
+          <div class="field-row">
+            <div class="field">
+              <label>Voornaam</label>
+              <input type="text" id="reg-fname" placeholder="naam" autocomplete="given-name">
+            </div>
+            <div class="field">
+              <label>Achternaam</label>
+              <input type="text" id="reg-lname" placeholder="achternaam" autocomplete="family-name">
+            </div>
+          </div>
+          <div class="field">
+            <label>E-mailadres</label>
+            <input type="email" id="reg-email" placeholder="jij@voorbeeld.nl" autocomplete="email">
+          </div>
+          <div class="field">
+            <label>Wachtwoord</label>
+            <input type="password" id="reg-pw" placeholder="Minimaal 8 tekens" oninput="checkPwStrength(this.value)" autocomplete="new-password">
+            <div class="pw-strength" id="pw-bars">
+              <div class="pw-bar" id="bar1"></div>
+              <div class="pw-bar" id="bar2"></div>
+              <div class="pw-bar" id="bar3"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Wachtwoord herhalen</label>
+            <input type="password" id="reg-pw2" placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <button class="btn-primary" onclick="handleRegister()">Account aanmaken</button>
+          <p class="terms">Door te registreren ga je akkoord met onze <a href="#">algemene voorwaarden</a> en <a href="#">privacyverklaring</a>.</p>
+        </div>
+        <div class="success-msg" id="register-success">
+          <div class="checkmark">✓</div>
+          <h3>Account aangemaakt!</h3>
+          <p>Welkom bij MusicMedia. Je kunt nu inloggen en bestellen.</p>
+          <button class="btn-primary" onclick="switchTab('login')">Naar inloggen →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
+
+<script>
+
+function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+function updateCartIcon() {
+  const total = getCart().reduce((s,i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+}
+updateCartIcon();
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='login')));
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+}
+
+function checkPwStrength(pw) {
+  const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
+  bars.forEach(b => b.className = 'pw-bar');
+  if (!pw) return;
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw) || /[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw) || pw.length >= 12) score++;
+  const cls = score === 1 ? 'weak' : score === 2 ? 'medium' : 'strong';
+  bars.slice(0, score).forEach(b => b.classList.add(cls));
+}
+
+function handleLogin() {
+  const email = document.getElementById('login-email').value;
+  const pw = document.getElementById('login-pw').value;
+  if (!email || !pw) { showToast('Vul alle velden in'); return; }
+  if (!email.includes('@')) { showToast('Ongeldig e-mailadres'); return; }
+
+  const users = JSON.parse(localStorage.getItem('musicmedia_users') || '[]');
+  const user = users.find(u => u.email === email && u.password === pw);
+
+  if (!user) {
+    showToast('Onbekend e-mailadres of onjuist wachtwoord');
+    return;
+  }
+
+  localStorage.setItem('musicmedia_loggedin', JSON.stringify(user));
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('login-success').style.display = 'block';
+}
+
+function handleRegister() {
+  const fname = document.getElementById('reg-fname').value;
+  const lname = document.getElementById('reg-lname').value;
+  const email = document.getElementById('reg-email').value;
+  const pw = document.getElementById('reg-pw').value;
+  const pw2 = document.getElementById('reg-pw2').value;
+  if (!fname || !lname || !email || !pw || !pw2) { showToast('Vul alle velden in'); return; }
+  if (!email.includes('@')) { showToast('Ongeldig e-mailadres'); return; }
+  if (pw.length < 8) { showToast('Wachtwoord minimaal 8 tekens'); return; }
+  if (pw !== pw2) { showToast('Wachtwoorden komen niet overeen'); return; }
+
+  const users = JSON.parse(localStorage.getItem('musicmedia_users') || '[]');
+  if (users.find(u => u.email === email)) {
+    showToast('Dit e-mailadres is al in gebruik'); return;
+  }
+  users.push({ fname, lname, email, password: pw });
+  localStorage.setItem('musicmedia_users', JSON.stringify(users));
+
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('register-success').style.display = 'block';
+}
+
+function showToast(msg) {
+  const old = document.getElementById('toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+</script>
+</body>
+</html>

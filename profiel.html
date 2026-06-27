@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Mijn Profiel – MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.cart-icon, .account-icon {
+  position: fixed; top: 30px; z-index: 100;
+  background: rgba(255,255,255,0.9); padding: 8px; border-radius: 50%;
+  box-shadow: 0 0 15px rgba(231,170,61,0.5);
+  display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+}
+.cart-icon { right: 20px; }
+.account-icon { right: 70px; }
+.cart-icon:hover, .account-icon:hover { transform: scale(1.1); }
+.cart-badge { position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: none; align-items: center; justify-content: center; }
+
+main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 20px; }
+
+.profile-card {
+  background: white; border-radius: 20px; padding: 40px 36px;
+  box-shadow: 0 2px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(231,170,61,0.1);
+  width: 100%; max-width: 440px; text-align: center;
+}
+
+.avatar {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #5a3b00, #e7aa3d);
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 32px; margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(231,170,61,0.35);
+}
+
+.profile-name { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 4px; }
+.profile-email { color: #888; font-size: 13px; margin-bottom: 32px; }
+
+.info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+.info-row:last-of-type { border-bottom: none; }
+.info-label { color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.info-value { color: #1a1a1a; font-weight: 500; }
+
+.btn-logout {
+  width: 100%; margin-top: 28px; padding: 14px;
+  background: linear-gradient(135deg, #5a3b00, #8a5c00);
+  color: white; border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-logout:hover { background: linear-gradient(135deg, #3d2700, #6b4600); transform: translateY(-1px); }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht &nbsp;|&nbsp; Klantenservice: 06 67676767 ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative;">
+    <img src="photos/cart.png" alt="Winkelwagen" style="height:30px;">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<a href="profiel.html" class="account-icon">
+  <img src="photos/account.png" alt="Account" style="height:30px;">
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="HiFi.html">Hi-Fi</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="profile-card">
+    <div class="avatar">🎵</div>
+    <div class="profile-name" id="profile-name"></div>
+    <div class="profile-email" id="profile-email"></div>
+    <div class="info-row">
+      <span class="info-label">Voornaam</span>
+      <span class="info-value" id="profile-fname"></span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Achternaam</span>
+      <span class="info-value" id="profile-lname"></span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">E-mailadres</span>
+      <span class="info-value" id="profile-email2"></span>
+    </div>
+    <button class="btn-logout" onclick="handleLogout()">Uitloggen</button>
+  </div>
+</main>
+
+<div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
+
+<script>
+// Redirect naar login als niet ingelogd
+const raw = localStorage.getItem('musicmedia_loggedin');
+if (!raw) { window.location.href = 'account.html'; }
+
+const user = JSON.parse(raw);
+document.getElementById('profile-name').textContent = user.fname + ' ' + user.lname;
+document.getElementById('profile-email').textContent = user.email;
+document.getElementById('profile-fname').textContent = user.fname;
+document.getElementById('profile-lname').textContent = user.lname;
+document.getElementById('profile-email2').textContent = user.email;
+
+function handleLogout() {
+  localStorage.removeItem('musicmedia_loggedin');
+  window.location.href = 'account.html';
+}
+
+// Cart badge
+const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+const total = cart.reduce((s, i) => s + i.qty, 0);
+const badge = document.getElementById('cart-badge');
+if (badge && total > 0) { badge.textContent = total; badge.style.display = 'flex'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>CD Collectie - MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<style>
+/* --- BASIS STIJL (Huisstijl MusicMedia) --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+/* Navigatie & Hero */
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.small-hero { position: relative; height: 160px; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1a0a00 0%, #3d2000 40%, #5a3b00 70%, #2a1500 100%); }
+.hero-logo { height: 200px; position: relative; z-index: 2; filter: drop-shadow(0 4px 15px rgba(231,170,61,0.3)); }
+
+/* Winkelwagen icoon met gloed */
+.cart-icon { 
+  position: fixed; top: 30px; right: 20px; z-index: 100; 
+  background: rgba(255, 255, 255, 0.9); padding: 8px; border-radius: 50%; 
+  box-shadow: 0 0 15px rgba(231, 170, 61, 0.5); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; text-decoration: none;
+}
+.cart-icon:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(231, 170, 61, 0.8); }
+.cart-badge { 
+  position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; 
+  border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; 
+  display: none; align-items: center; justify-content: center; 
+}
+
+/* Filter & Zoeksectie */
+.controls-container { max-width: 1200px; margin: 30px auto 10px; padding: 0 20px; }
+.filter-container { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+
+.filter-btn { padding: 10px 18px; border-radius: 25px; border: 1.5px solid #ddd; background: white; font-size: 13px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+.filter-btn:hover, .filter-btn.active { background: #e7aa3d; color: white; border-color: #e7aa3d; }
+
+.search-wrapper { margin-bottom: 20px; display: flex; max-width: 400px; }
+.search-wrapper input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px 0 0 25px; outline: none; }
+.search-wrapper button { padding: 12px 20px; background: #5a3b00; color: white; border: none; border-radius: 0 25px 25px 0; cursor: pointer; }
+
+
+h2 { max-width: 1200px; margin: 20px auto; padding: 0 20px; font-family: 'Franklin Gothic Medium', Arial, sans-serif; font-size: 24px; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto 50px; padding: 20px; }
+
+.product-card { background: white; border-radius: 12px; border: 1px solid #e8e8e8; overflow: hidden; transition: all 0.2s; display: flex; flex-direction: column; }
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: #e7aa3d; }
+.product-card img {
+    width: 100%;
+    height: 220px; 
+    object-fit: contain; 
+    background-color: #fff; 
+    padding: 10px; 
+}
+.product-info { padding: 15px; flex-grow: 1; text-align: center; }
+.product-info h3 { font-size: 15px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-info p.artist { font-size: 13px; color: #777; margin-bottom: 10px; }
+.product-info p.price { font-size: 16px; font-weight: 700; color: #5a3b00; }
+
+.add-to-cart { width: calc(100% - 30px); margin: 0 15px 15px; padding: 10px; background: #e7aa3d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.add-to-cart:hover { background: #5a3b00; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.4); text-align: center; padding: 30px; font-size: 11px; margin-top: 60px; }
+
+.account-icon { position: fixed; top: 30px; right: 70px; z-index: 100; }
+.account-icon img { height: 40px; }
+
+.account-icon { 
+  position: fixed; 
+  top: 30px; 
+  right: 70px; 
+  z-index: 100; 
+  background: rgba(255, 255, 255, 0.9); 
+  padding: 8px;
+  border-radius: 50%; 
+  box-shadow: 0 0 15px rgba(231, 170, 61, 0.5); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.account-icon:hover {
+  transform: scale(1.1); 
+  box-shadow: 0 0 20px rgba(231, 170, 61, 0.8); 
+}
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; De beste CD selectie ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <img src="photos/cart.png" alt="Winkelwagen" style="height: 30px;">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<a href="account.html" class="account-icon" id="account-link">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <img src="photos/account.png" alt="Account" style="height: 30px; width: auto;">
+    <span id="account-badge" class="account-badge"></span>
+  </div>
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="homepage.html">Home</a></li>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html" style="color:#e7aa3d;">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="HiFi.html">Hi-Fi</a></li>
+  </ul>
+</nav>
+
+<div class="small-hero">
+    <div class="hero-bg"></div>
+    <a href="homepage.html"><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
+</div>
+
+<div class="controls-container">
+    <form class="search-wrapper" onsubmit="handleSearch(event)">
+        <input id="search-input" type="text" placeholder="Zoek CD's...">
+        <button type="submit">Zoek</button>
+    </form>
+
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterGenre('all', this)">Alle CD's</button>
+        <button class="filter-btn" onclick="filterGenre('Hip-Hop', this)">Hip-Hop</button>
+        <button class="filter-btn" onclick="filterGenre('Rock', this)">Rock</button>
+        <button class="filter-btn" onclick="filterGenre('Pop', this)">Pop</button>
+        <button class="filter-btn" onclick="filterGenre('R&B', this)">R&B</button>
+        <select id="sort-select" onchange="sortProducts()" style="padding: 10px; border-radius: 25px; border: 1.5px solid #ddd; outline: none; font-size: 13px;">
+            <option value="default">Sorteer op prijs</option>
+            <option value="asc">Prijs: laag - hoog</option>
+            <option value="desc">Prijs: hoog - laag</option>
+        </select>
+    </div>
+</div>
+
+<h2 id="grid-title">Alle CD's</h2>
+
+<div class="product-grid" id="product-container"></div>
+
+<div class="footer">© 2025 MUSICMEDIA — PREMIUM SOUND & CD SELECTION</div>
+
+<script>
+const products = [
+  {name: "The Bends", artist: "Radiohead", price: 9.99, image: "photos/bends.jpeg", label: "EMI Music", genre: "Rock"},
+  {name: "Heroes", artist: "David Bowie", price: 9.99, image: "photos/heroes.jpeg", label: "EMI Music", genre: "Pop"},
+  {name: "Low End Theory", artist: "Tribe Called Quest", price: 9.99, image: "photos/LET.jpeg", label: "JIVE", genre: "Hip-Hop"},
+  {name: "Graduation", artist: "Kanye West", price: 8.99, image: "photos/Graduation.jpeg", label: "Roc-A-Fella", genre: "Hip-Hop"},
+  {name: "Queen 40", artist: "Queen", price: 54.99, image: "photos/Queen.jpeg", label: "HollyWood", genre: "Rock"},
+  {name: "DAMN.", artist: "Kendrick Lamar", price: 9.99, image: "photos/damn.jpeg", label: "INTERSCOPE", genre: "Hip-Hop"},
+  {name: "Punk Tactics", artist: "Joey Valance & Brae", price: 16.99, image: "photos/punk.jpeg", label: "JVB", genre: "Hip-Hop"},
+  {name: "SOS", artist: "SZA", price: 12.99, image: "photos/SOS.jpeg", label: "TOP DAWG", genre: "R&B"},
+  {name: "Wish You Were Here", artist: "Pink Floyd", price: 19.99, image: "photos/wywh.jpeg", label: "COLOMBIA", genre: "Rock"},
+  {name: "IGOR", artist: "Tyler, The Creator", price: 16.99, image: "photos/IGOR.jpeg", label: "COLOMBIA", genre: "R&B"},
+  {name: "Guts", artist: "Olivia Rodrigo", price: 19.99, image: "photos/Guts.jpeg", label: "INTERSCOPE", genre: "Pop"},
+  {name: "MBDTF", artist: "Kanye West", price: 15.99, image: "photos/mbtdf.jpeg", label: "ROC-A-FELLA", genre: "Hip-Hop"},
+  {name: "Off The Wall", artist: "Michael Jackson", price: 9.99, image: "photos/otw.jpeg", label: "EPIC", genre: "Pop"},
+  {name: "Kid A", artist: "Radiohead", price: 9.99, image: "photos/kida.jpeg", label: "PARLOPHONE", genre: "Rock"},
+  {name: "What's Going On", artist: "Marvin Gaye", price: 9.99, image: "photos/gay.jpeg", label: "TAMILA", genre: "R&B"},
+];
+
+let filteredList = [...products];
+
+function renderProducts(list) {
+  const container = document.getElementById('product-container');
+  container.innerHTML = '';
+  list.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
+    card.innerHTML = `
+      <a href="${url}" style="text-decoration:none; color:inherit;">
+        <img src="${p.image}" alt="${p.name}">
+        <div class="product-info">
+          <h3>${p.name}</h3>
+          <p class="artist">${p.artist}</p>
+          <p class="price">€${p.price.toFixed(2)}</p>
+        </div>
+      </a>
+      <button class="add-to-cart" onclick="addToCart('${p.name}', '${p.artist}', ${p.price}, '${p.image}')">In winkelwagen</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function filterGenre(genre, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  if (genre === 'all') {
+    filteredList = [...products];
+    document.getElementById('grid-title').textContent = "Alle CD's";
+  } else {
+    filteredList = products.filter(p => p.genre.toLowerCase() === genre.toLowerCase());
+    document.getElementById('grid-title').textContent = genre + " CD Collectie";
+  }
+  sortProducts();
+}
+
+function sortProducts() {
+  const val = document.getElementById('sort-select').value;
+  if (val === 'asc') filteredList.sort((a, b) => a.price - b.price);
+  if (val === 'desc') filteredList.sort((a, b) => b.price - a.price);
+  renderProducts(filteredList);
+}
+
+function handleSearch(e) {
+  e.preventDefault();
+  const q = document.getElementById('search-input').value.toLowerCase();
+  filteredList = products.filter(p => p.name.toLowerCase().includes(q) || p.artist.toLowerCase().includes(q));
+  document.getElementById('grid-title').textContent = "Zoekresultaten voor: " + q;
+  renderProducts(filteredList);
+}
+
+function addToCart(name, artist, price, image) {
+  let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+  const existing = cart.find(i => i.name === name);
+  if (existing) existing.qty++;
+  else cart.push({ name, artist, price, image, qty: 1 });
+  localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
+  updateCartIcon();
+  showToast(`"${name}" toegevoegd!`);
+}
+
+function updateCartIcon() {
+  const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+}
+
+const loggedIn = localStorage.getItem('musicmedia_loggedin');
+const accountLink = document.getElementById('account-link');
+if (loggedIn) {
+  accountLink.href = 'profiel.html';
+} else {
+  accountLink.href = 'account.html';
+}
+
+function showToast(msg) {
+  const old = document.getElementById('toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+
+window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("search");
+    if(q) {
+        document.getElementById('search-input').value = q;
+        filteredList = products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.artist.toLowerCase().includes(q.toLowerCase()));
+        document.getElementById('grid-title').textContent = "Zoekresultaten";
+    }
+    renderProducts(filteredList);
+    updateCartIcon();
+};
+</script>
+</body>
+</html>

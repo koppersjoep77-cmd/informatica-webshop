@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title id="pagetitle">Speaker - MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+
+<style>
+/* --- BASIS STIJL --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+/* Navigatie & Hero (Dezelfde als vinyl/CD) */
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.small-hero { position: relative; height: 160px; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1a0a00 0%, #3d2000 40%, #5a3b00 70%, #2a1500 100%); }
+.hero-logo { height: 70px; position: relative; z-index: 2; filter: drop-shadow(0 4px 15px rgba(231,170,61,0.3)); }
+
+/* Winkelwagen icoon met gloed */
+.cart-icon { 
+  position: fixed; top: 30px; right: 20px; z-index: 100; 
+  background: rgba(255, 255, 255, 0.9); padding: 8px; border-radius: 50%; 
+  box-shadow: 0 0 15px rgba(231, 170, 61, 0.5); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; text-decoration: none;
+}
+.cart-icon:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(231, 170, 61, 0.8); }
+.cart-badge { 
+  position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; 
+  border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; 
+  display: none; align-items: center; justify-content: center; 
+}
+
+/* Content Layout */
+h1 { text-align: center; margin-top: 30px; font-family: 'Franklin Gothic Medium', Arial, sans-serif; font-size: 32px; }
+
+.content {
+    display: flex;
+    align-items: flex-start;
+    margin: 30px auto 60px;
+    max-width: 1000px;
+    gap: 50px;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.foto-container {
+    flex: 1;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.foto {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1 / 1; /* Zorgt voor een vierkant vlak */
+    object-fit: contain; /* Zorgt dat de speaker nooit wordt afgesneden */
+}
+
+.tekst {
+    flex: 1;
+}
+
+.tekst h2 { color: #5a3b00; margin-bottom: 15px; font-size: 24px; }
+.tekst p { margin-bottom: 12px; line-height: 1.6; }
+
+.prijs-label {
+    font-size: 28px;
+    color: #e7aa3d;
+    font-weight: bold;
+    display: block;
+    margin: 20px 0;
+}
+
+.add-to-cart {
+    padding: 18px;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #e7aa3d;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-to-cart:hover {
+    background-color: #5a3b00;
+}
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.4); text-align: center; padding: 30px; font-size: 11px; margin-top: 60px; }
+</style>
+</head>
+
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <img src="photos/cart.png" alt="Winkelwagen" style="height: 30px;">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="homepage.html">Home</a></li>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html" style="color:#e7aa3d;">Speakers</a></li>
+    <li><a href="#">Hi-Fi</a></li>
+  </ul>
+</nav>
+
+<div class="small-hero">
+    <div class="hero-bg"></div>
+    <a href="homepage.html"><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
+</div>
+
+<h1 id="titel">Product laden...</h1>
+
+<div class="content">
+    <div class="foto-container">
+        <img id="foto" class="foto" src="" alt="Speaker foto">
+    </div>
+    
+    <div class="tekst">
+        <h2 id="brand">Merknaam</h2>
+        <p><strong>Model:</strong> <span id="naam"></span></p>
+        <p><strong>Type:</strong> <span id="type"></span></p>
+
+        <span class="prijs-label">€<span id="prijs">0.00</span></span>
+
+        <p><strong>Productinformatie:</strong><br>
+        <span id="beschrijving"></span></p>
+        
+        <button class="add-to-cart" id="buy-btn">In winkelwagen</button>
+    </div>
+</div>
+
+<div class="footer">© 2025 MUSICMEDIA — PREMIUM SOUND & AUDIO SELECTION</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const naam = params.get("naam");
+const brand = params.get("brand");
+const prijs = params.get("prijs");
+const image = params.get("image");
+const type = params.get("type");
+
+if(naam){
+    document.getElementById("titel").textContent = naam;
+    document.getElementById("naam").textContent = naam;
+    document.getElementById("brand").textContent = brand;
+    document.getElementById("prijs").textContent = parseFloat(prijs).toFixed(2);
+    document.getElementById("foto").src = image;
+    document.getElementById("type").textContent = type;
+    document.getElementById("beschrijving").textContent = 
+        `De ${naam} van het gerenommeerde merk ${brand} is een hoogwaardige ${type} speaker. Ontworpen voor liefhebbers die geen compromis willen sluiten op audiokwaliteit en esthetiek.`;
+    document.getElementById("pagetitle").textContent = naam + " - " + brand;
+}
+
+function updateCartIcon() {
+  const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+  const total = cart.reduce((sum, item) => sum + item.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) {
+    badge.textContent = total;
+    badge.style.display = total > 0 ? 'flex' : 'none';
+  }
+}
+
+function showToast(msg) {
+  const old = document.getElementById('toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+
+document.getElementById('buy-btn').addEventListener('click', () => {
+    let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+    const existing = cart.find(item => item.name === naam);
+    
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({
+            name: naam,
+            brand: brand,
+            price: parseFloat(prijs),
+            image: image,
+            type: type,
+            qty: 1
+        });
+    }
+
+    localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
+    updateCartIcon();
+    showToast(`${naam} is toegevoegd aan je winkelwagen!`);
+});
+
+// Initialisatie
+updateCartIcon();
+</script>
+
+</body>
+</html>

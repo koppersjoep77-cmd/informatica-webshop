@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Zoekresultaten - MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; }
+
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
+
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; letter-spacing: 0.3px; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+.hero-search-small { background: #1a1a1a; padding: 20px; text-align: center; display: flex; justify-content: center; }
+.hero-search-small input { padding: 11px 18px; width: 300px; font-size: 14px; border: none; border-radius: 25px 0 0 25px; outline: none; }
+.hero-search-small button { padding: 11px 20px; background: #e7aa3d; color: white; border: none; border-radius: 0 25px 25px 0; cursor: pointer; font-size: 14px; font-weight: 600; }
+.hero-search-small button:hover { background: darkorange; }
+
+.cart-icon { position: fixed; top: 30px; right: 20px; z-index: 100; }
+.cart-icon img { height: 36px; }
+.cart-badge { position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: none; align-items: center; justify-content: center; }
+
+.section { padding: 36px 32px; min-height: 50vh; }
+.section-header { margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+.section-title { font-family: 'Franklin Gothic Medium', Arial, sans-serif; font-size: 24px; font-weight: 700; color: #1a1a1a; }
+
+/* Aantal resultaten onder de titel */
+.result-count { font-size: 13px; color: #888; margin-top: 6px; }
+.result-count span { color: #e7aa3d; font-weight: 600; }
+
+.results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+.no-results { text-align: center; padding: 40px; color: #777; font-size: 16px; grid-column: 1 / -1; }
+
+.vinyl-card { background: white; border-radius: 12px; border: 1px solid #e8e8e8; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+.vinyl-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-color: #e7aa3d; }
+.vinyl-card img { width: 100%; height: 180px; object-fit: cover; display: block; }
+.vinyl-card-body { padding: 10px 12px 12px; flex-grow: 1; }
+.vinyl-card-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.vinyl-card-artist { font-size: 12px; color: #777; margin-top: 4px; }
+.vinyl-card-price { font-size: 14px; font-weight: 700; color: #5a3b00; margin-top: 8px; }
+.vinyl-card-btn { width: 100%; margin-top: auto; padding: 10px; background: #e7aa3d; color: white; border: none; border-top: 1px solid #e8e8e8; font-size: 13px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+.vinyl-card-btn:hover { background: darkorange; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht &nbsp;|&nbsp; Klantenservice: 06 67676767 ✦</div>
+
+<a href="winkelwagen.html" class="cart-icon">
+  <div style="position:relative;display:inline-block;">
+    <img src="photos/cart.png" alt="Winkelwagen">
+    <span id="cart-badge" class="cart-badge"></span>
+  </div>
+</a>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="homepage.html">Home</a></li>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="#">Hi-Fi</a></li>
+    <li><a href="#">Accessoires</a></li>
+  </ul>
+</nav>
+
+<div class="hero-search-small">
+  <form onsubmit="handleSearch(event)" style="display: flex;">
+    <input id="search-input" type="text" placeholder="Zoek op artiest, album of product...">
+    <button type="submit">Zoeken</button>
+  </form>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h1 class="section-title" id="search-title">Zoeken...</h1>
+    <!-- Hier verschijnt het aantal resultaten -->
+    <p class="result-count" id="result-count"></p>
+  </div>
+  
+  <div class="results-grid" id="results-container"></div>
+</div>
+
+<div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
+
+<script>
+const allProducts = [
+  // CD'S 
+  {name: "Bends", artist: "Radiohead", price: 9.99, image: "photos/bends.jpeg", label: "EMI Music", genre: "Rock", media: "CD"},
+  {name: "Heroes", artist: "David Bowie", price: 9.99, image: "photos/heroes.jpeg", label: "EMI Music", genre: "Pop", media: "CD"},
+  {name: "Low End Theory", artist: "Tribe Called Quest", price: 9.99, image: "photos/LET.jpeg", label: "JIVE", genre: "Hip-Hop", media: "CD"},
+  {name: "Graduation", artist: "Kanye West", price: 8.99, image: "photos/Graduation.jpeg", label: "Roc-A-Fella Records", genre: "Hip-Hop", media: "CD"},
+  {name: "Queen 40", artist: "Queen", price: 54.99, image: "photos/Queen.jpeg", label: "HollyWood", genre: "Rock", media: "CD"},
+  {name: "DAMN.", artist: "Kendrick Lamar", price: 9.99, image: "photos/damn.jpeg", label: "INTERSCOPE", genre: "Hip-Hop", media: "CD"},
+  {name: "Punk Tactics", artist: "Joey Valance & Brae", price: 16.99, image: "photos/punk.jpeg", label: "JVB", genre: "Hip-Hop", media: "CD"},
+  {name: "SOS", artist: "SZA", price: 12.99, image: "photos/SOS.jpeg", label: "TOP DAWG", genre: "R&B", media: "CD"},
+  {name: "Wish You Were Here", artist: "Pink Floyd", price: 19.99, image: "photos/wywh.jpeg", label: "COLOMBIA", genre: "Rock", media: "CD"},
+  {name: "IGOR", artist: "Tyler, The Creator", price: 16.99, image: "photos/IGOR.jpeg", label: "COLOMBIA", genre: "R&B", media: "CD"},
+  {name: "Guts", artist: "Olivia Rodrigo", price: 19.99, image: "photos/Guts.jpeg", label: "INTERSCOPE", genre: "Pop", media: "CD"},
+  {name: "My Beautiful Dark Twisted Fantasy", artist: "Kanye West", price: 15.99, image: "photos/mbtdf.jpeg", label: "ROC-A-FELLA RECORDS", genre: "Hip-Hop", media: "CD"},
+  {name: "Off The Wall", artist: "Michael Jackson", price: 9.99, image: "photos/otw.jpeg", label: "EPIC", genre: "Pop", media: "CD"},
+  {name: "Kid A", artist: "Radiohead", price: 9.99, image: "photos/kida.jpeg", label: "PARLOPHONE", genre: "Rock", media: "CD"},
+  // --- SPEAKERS ---
+  {name: "SX50", artist: "Cambridge Audio", price: 199.00, image: "photos/SX50.webp", label: "Passive Speaker"},
+  {name: "SX60", artist: "Cambridge Audio", price: 299.00, image: "photos/SX60.webp", label: "Passive Speaker"},
+  {name: "SX80", artist: "Cambridge Audio", price: 799.00, image: "photos/SX80.webp", label: "Passive Speaker"},
+  {name: "RP-600M II", artist: "Klipsch", price: 599.00, image: "photos/klipsch.jpeg", label: "Passive Speaker"},
+  {name: "RP-8000F II", artist: "Klipsch", price: 899.99, image: "photos/8000f.jpeg", label: "Passive Speaker"},
+  {name: "LSX II", artist: "KEF", price: 999.00, image: "photos/kef.jpeg", label: "Active Speaker"},
+  {name: "Coda W", artist: "KEF", price: 799.00, image: "photos/coda.jpeg", label: "Active Speaker"},
+  {name: "LS50 wireless II", artist: "KEF", price: 2499.00, image: "photos/LS50.jpeg", label: "Active Speaker"},
+  {name: "LS60 wireless II", artist: "KEF", price: 2749.00, image: "photos/LS60.jpeg", label: "Active Speaker"},
+  {name: "AIO Twin", artist: "Triangle", price: 699.00, image: "photos/TWIN.jpeg", label: "Active Speaker"},
+  // --- VINYL ---
+  {name: "Samen is leuker dan alleen", artist: "Flemming", price: 29.99, image: "photos/samen is leuker dan alleen.png", label:"No Label", genre: "Rock", media: "Vinyl"},
+  {name: "Bully", artist: "Kanye West", price: 29.99, image: "photos/bully.jpg", label:"GAMMA.", genre: "Hip-Hop", media: "Vinyl"},
+  {name: "In Between Dreams", artist: "Jack Johnson", price: 49.99, image: "photos/ibd.jpg", label:"Brushfire", genre: "Pop", media: "Vinyl"},
+  {name: "Don't Be Dumb", artist: "A$AP ROCKY", price: 34.99, image: "photos/asap rocky.jpg", label:"ROCKY Worldwide", genre: "Hip-Hop", media: "Vinyl"},
+  {name: "A matter of time: The final hour", artist: "Laufey", price: 39.99, image: "photos/laufey.jpg", label:"Vingolf Recordings", genre: "Pop", media: "Vinyl"},
+  {name: "To Pimp A Butterfly", artist: "Kendrick Lamar", price: 49.99, image: "photos/TPAB.jpg", label:"Top Dawg Entertainment", genre: "Hip-Hop", media: "Vinyl"},
+  {name: "Icon", artist: "Brent Faiyaz", price: 34.99, image: "photos/icon.webp", label:"ISO Supremacy", genre: "R&B", media: "Vinyl"},
+  {name: "Ca$ino", artist: "Baby Keem", price: 29.99, image: "photos/ca$ino.jpg", label:"Columbia", genre: "Hip-Hop", media: "Vinyl"},
+  {name: "Goldfish", artist: "Hit-Boy & The Alchemist", price: 39.99, image: "photos/goldfish.jpg", label:"EMPIRE", genre: "Hip-Hop", media: "Vinyl"},
+  {name: "Californication", artist: "Red Hot Chili Peppers", price: 32.99, image: "photos/californication.jpg", label:"Warner Bros.", genre: "Rock", media: "Vinyl"},
+  {name: "The Mountain", artist: "Gorillaz", price: 39.99, image: "photos/Mountain.jpg", label:"No Label", genre: "Rock", media: "Vinyl"},
+  {name: "Blond", artist: "Frank Ocean", price: 199.99, image: "photos/Blond.jpg", label:"Boys Don't Cry", genre: "R&B", media: "Vinyl"},
+  {name: "Channel Orange", artist: "Frank Ocean", price: 39.99, image: "photos/orange.jpg", label:"Def Jam", genre: "R&B", media: "Vinyl"},
+  {name: "The Romantic", artist: "Bruno Mars", price: 34.99, image: "photos/romantic.jpg", label:"ATLANTIC", genre: "Pop", media: "Vinyl"},
+  {name: "The Rise and Fall of Ziggy Stardust", artist: "David Bowie", price: 24.99, image: "photos/ziggy.jpg", label: "RCA", genre: "Rock", media: "Vinyl"},
+  {name: "The Collage Dropout", artist: "Kanye West", price: 34.99, image: "photos/tcd.jpg", label: "ROCKAFELLA", genre: "Hip-Hop", media: "Vinyl"},
+];
+
+function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+function saveCart(cart) { localStorage.setItem('musicmedia_cart', JSON.stringify(cart)); updateCartIcon(); }
+
+function addToCart(product) {
+  const cart = getCart();
+  const existing = cart.find(i => i.name === product.name && i.artist === product.artist);
+  if (existing) existing.qty++;
+  else cart.push({ ...product, qty: 1 });
+  saveCart(cart);
+  showToast(`"${product.name}" toegevoegd!`);
+}
+
+function updateCartIcon() {
+  const cart = getCart();
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+}
+
+function showToast(msg) {
+  const old = document.getElementById('toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+
+function handleSearch(e) {
+  e.preventDefault();
+  const q = document.getElementById('search-input').value;
+  if (q) window.location.href = `zoekresultaten.html?search=${encodeURIComponent(q)}`;
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const searchQuery = urlParams.get('search');
+const searchTitle = document.getElementById('search-title');
+const resultCount = document.getElementById('result-count');
+const container = document.getElementById('results-container');
+
+if (searchQuery) {
+  document.getElementById('search-input').value = searchQuery;
+  searchTitle.textContent = `Resultaten voor "${searchQuery}"`;
+
+  const queryLower = searchQuery.toLowerCase();
+  const filteredProducts = allProducts.filter(p =>
+    p.name.toLowerCase().includes(queryLower) ||
+    p.artist.toLowerCase().includes(queryLower)
+  );
+
+  // Aantal resultaten tonen
+  if (filteredProducts.length === 0) {
+    resultCount.innerHTML = `Geen resultaten gevonden`;
+    container.innerHTML = `<div class="no-results">Geen producten gevonden voor "${searchQuery}". Probeer een andere zoekterm.</div>`;
+  } else {
+    resultCount.innerHTML = `<span>${filteredProducts.length}</span> ${filteredProducts.length === 1 ? 'resultaat' : 'resultaten'} gevonden`;
+
+    filteredProducts.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'vinyl-card';
+      const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
+      div.innerHTML = `
+        <a href="${url}" style="text-decoration:none;color:inherit;flex-grow:1;display:flex;flex-direction:column;">
+          <img src="${p.image}" alt="${p.name}">
+          <div class="vinyl-card-body">
+            <div class="vinyl-card-name">${p.name}</div>
+            <div class="vinyl-card-artist">${p.artist}</div>
+            <div class="vinyl-card-price">€${p.price.toFixed(2)}</div>
+            <div class="vinyl-card-media">${p.media || ''}</div>
+          </div>
+        </a>
+        <button class="vinyl-card-btn">In winkelwagen</button>
+      `;
+      div.querySelector('.vinyl-card-btn').addEventListener('click', () => addToCart(p));
+      container.appendChild(div);
+    });
+  }
+} else {
+  searchTitle.textContent = "Geen zoekterm ingevuld";
+  resultCount.innerHTML = '';
+  container.innerHTML = `<div class="no-results">Gebruik de zoekbalk hierboven om producten te vinden.</div>`;
+}
+
+updateCartIcon();
+</script>
+</body>
+</html>
