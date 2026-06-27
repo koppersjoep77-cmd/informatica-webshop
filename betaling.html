@@ -64,7 +64,7 @@
 
 <nav class="topbar">
   <ul>
-    <li><a href="homepage.html">Home</a></li>
+    <li><a href="index.html">Home</a></li>
     <li><a href="vinyl.html">Vinyl</a></li>
     <li><a href="CD.html">CD</a></li>
     <li><a href="speakers.html">Speakers</a></li>
@@ -73,7 +73,7 @@
 
 <div class="small-hero">
     <div class="hero-bg"></div>
-    <a href="homepage.html"><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
+    <a href="index.html"><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
 </div>
 
 <div class="checkout-container">
@@ -326,7 +326,7 @@
       localStorage.removeItem('musicmedia_cart');
       inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
       alert('Bestelling succesvol geplaatst!');
-      window.location.href = 'homepage.html';
+      window.location.href = 'index.html';
     } catch (err) {
       console.error('Firebase fout:', err);
       alert('Er ging iets mis. Probeer het opnieuw.');
