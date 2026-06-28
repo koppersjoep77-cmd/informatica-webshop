@@ -530,23 +530,25 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
     document.getElementById('buy-modal').classList.add('open');
   };
 
-  window.confirmBuy = async function() {
+window.confirmBuy = async function() {
     const l = allListings.find(x => x.firebaseKey === activeBuyId);
     if (!l) return;
 
-    // Voeg toe aan winkelwagen
     const cart = getCart();
     const existing = cart.find(i => i.name === l.name && i.artist === l.artist);
     if (existing) existing.qty++;
-    else cart.push({ name: l.name, artist: l.artist, price: l.buyPrice, image: l.image || '', qty: 1 });
+    else cart.push({ 
+      name: l.name, 
+      artist: l.artist, 
+      price: l.buyPrice, 
+      image: l.image || '', 
+      qty: 1,
+      marketplaceKey: l.firebaseKey  // ← sla de Firebase key op
+    });
     saveCart(cart);
 
-    // Verwijder advertentie uit Firebase
-    await remove(ref(db, `listings/${activeBuyId}`));
-
     closeModal('buy-modal');
-    await loadListings();
-    showToast(`✓ "${l.name}" gekocht en uit de marketplace gehaald!`);
+    showToast(`✓ "${l.name}" toegevoegd aan winkelwagen!`);
   };
 
   // ── Helpers ────────────────────────────────────────────────────
