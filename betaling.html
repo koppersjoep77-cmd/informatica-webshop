@@ -57,6 +57,7 @@
 
     .footer { background: #1a0a00; color: rgba(255,255,255,0.4); text-align: center; padding: 30px; font-size: 11px; margin-top: 60px; letter-spacing: 1px; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -323,7 +324,7 @@
       status: "Nieuw"
     };
 
-    try {
+   try {
   await push(ref(db, 'orders'), order);
 
   // Verwijder marketplace items na betaling
@@ -333,37 +334,38 @@
     }
   }
 
-  // Stuur e-mail via PHP
-  await fetch('bestelling.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  // Stuur e-mail via EmailJS
+  try {
+    emailjs.init('_-KiRNBEq7SH2kqaE');
+    await emailjs.send('service_su4t98q', 'template_0zx0f2m', {
       voornaam: document.querySelector('[name="voornaam"]').value,
-      tussenvoegsel: document.querySelector('[name="tussenvoegsel"]').value,
-      achternaam: document.querySelector('[name="achternaam"]').value,
+      naam: order.klant.naam,
       email: document.querySelector('[name="email"]').value,
       straat: document.querySelector('[name="straat"]').value,
       huisnummer: document.querySelector('[name="huisnummer"]').value,
       postcode: document.querySelector('[name="postcode"]').value,
       woonplaats: document.querySelector('[name="woonplaats"]').value,
-      producten_lijst: hiddenProducts.value,
-      totaal_bedrag: hiddenTotal.value
-    })
-  });
+      producten: hiddenProducts.value,
+      totaal: hiddenTotal.value
+    });
+  } catch (mailErr) {
+    console.warn('E-mail kon niet worden verstuurd:', mailErr);
+  }
 
   localStorage.removeItem('musicmedia_cart');
   inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
 
   sessionStorage.setItem('laatste_bestelling', JSON.stringify({
-  naam: order.klant.naam,
-  email: order.klant.email,
-  totaal: totaal
-}));
-window.location.href = 'bedankt.html';
+    naam: order.klant.naam,
+    email: order.klant.email,
+    totaal: totaal
+  }));
+
+  window.location.href = 'bedankt.html';
 
 } catch (err) {
   console.error('Firebase fout:', err);
-  alert('Er ging iets mis. Probeer het opnieuw.');
+  alert('Er ging iets mis bij het opslaan van je bestelling. Probeer het opnieuw.');
   btn.disabled = false;
   btn.textContent = 'NU BETALEN';
 }
