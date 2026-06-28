@@ -346,81 +346,127 @@ main {
 
 <div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, get, push, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
-function updateCartIcon() {
-  const total = getCart().reduce((s,i) => s + i.qty, 0);
-  const badge = document.getElementById('cart-badge');
-  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
-}
-updateCartIcon();
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355"
+  };
 
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='login')));
-  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-function checkPwStrength(pw) {
-  const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
-  bars.forEach(b => b.className = 'pw-bar');
-  if (!pw) return;
-  let score = 0;
-  if (pw.length >= 8) score++;
-  if (/[A-Z]/.test(pw) || /[0-9]/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw) || pw.length >= 12) score++;
-  const cls = score === 1 ? 'weak' : score === 2 ? 'medium' : 'strong';
-  bars.slice(0, score).forEach(b => b.classList.add(cls));
-}
-
-function handleLogin() {
-  const email = document.getElementById('login-email').value;
-  const pw = document.getElementById('login-pw').value;
-  if (!email || !pw) { showToast('Vul alle velden in'); return; }
-  if (!email.includes('@')) { showToast('Ongeldig e-mailadres'); return; }
-
-  const users = JSON.parse(localStorage.getItem('musicmedia_users') || '[]');
-  const user = users.find(u => u.email === email && u.password === pw);
-
-  if (!user) {
-    showToast('Onbekend e-mailadres of onjuist wachtwoord');
-    return;
+  // Cart icon
+  function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+  function updateCartIcon() {
+    const total = getCart().reduce((s,i) => s + i.qty, 0);
+    const badge = document.getElementById('cart-badge');
+    if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
   }
+  updateCartIcon();
 
-  localStorage.setItem('musicmedia_loggedin', JSON.stringify(user));
-  document.getElementById('login-form').style.display = 'none';
-  document.getElementById('login-success').style.display = 'block';
-}
+  // Tabs
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='login')));
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  };
 
-function handleRegister() {
-  const fname = document.getElementById('reg-fname').value;
-  const lname = document.getElementById('reg-lname').value;
-  const email = document.getElementById('reg-email').value;
-  const pw = document.getElementById('reg-pw').value;
-  const pw2 = document.getElementById('reg-pw2').value;
-  if (!fname || !lname || !email || !pw || !pw2) { showToast('Vul alle velden in'); return; }
-  if (!email.includes('@')) { showToast('Ongeldig e-mailadres'); return; }
-  if (pw.length < 8) { showToast('Wachtwoord minimaal 8 tekens'); return; }
-  if (pw !== pw2) { showToast('Wachtwoorden komen niet overeen'); return; }
+  // Wachtwoordsterkte
+  window.checkPwStrength = function(pw) {
+    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
+    bars.forEach(b => b.className = 'pw-bar');
+    if (!pw) return;
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw) || /[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw) || pw.length >= 12) score++;
+    const cls = score === 1 ? 'weak' : score === 2 ? 'medium' : 'strong';
+    bars.slice(0, score).forEach(b => b.classList.add(cls));
+  };
 
-  const users = JSON.parse(localStorage.getItem('musicmedia_users') || '[]');
-  if (users.find(u => u.email === email)) {
-    showToast('Dit e-mailadres is al in gebruik'); return;
+  // Inloggen
+  window.handleLogin = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-pw').value;
+    if (!email || !pw) { showToast('Vul alle velden in'); return; }
+    if (!email.includes('@')) { showToast('Ongeldig e-mailadres'); return; }
+
+    try {
+      // Zoek gebruiker op e-mail in Firebase
+      const snapshot = await get(query(ref(db, 'users'), orderByChild('email'), equalTo(email)));
+
+      if (!snapshot.exists()) {
+        showToast('Onbekend e-mailadres of onjuist wachtwoord'); return;
+      }
+
+      let gevondenUser = null;
+      snapshot.forEach(child => {
+        if (child.val().password === pw) {
+          gevondenUser = child.val();
+        }
+      });
+
+      if (!gevondenUser) {
+        showToast('Onbekend e-mailadres of onjuist wachtwoord'); return;
+      }
+
+      localStorage.setItem('musicmedia_loggedin', JSON.stringify(gevondenUser));
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('login-success').style.display = 'block';
+
+    } catch (err) {
+      console.error(err);
+      showToast('Er ging iets mis, probeer opnieuw.');
+    }
+  };
+
+  // Registreren
+  window.handleRegister = async function() {
+    const fname = document.getElementById('reg-fname').value.trim();
+    const lname = document.getElementById('reg-lname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pw = document.getElementById('reg-pw').value;
+    const pw2 = document.getElementById('reg-pw2').value;
+
+    if (!fname || !lname || !email || !pw || !pw2) { showToast('Vul alle velden in'); return; }
+    if (!email.includes('@')) { showToast('Ongeldig e-mailadres'); return; }
+    if (pw.length < 8) { showToast('Wachtwoord minimaal 8 tekens'); return; }
+    if (pw !== pw2) { showToast('Wachtwoorden komen niet overeen'); return; }
+
+    try {
+      // Check of e-mail al bestaat
+      const snapshot = await get(query(ref(db, 'users'), orderByChild('email'), equalTo(email)));
+      if (snapshot.exists()) {
+        showToast('Dit e-mailadres is al in gebruik'); return;
+      }
+
+      // Sla nieuwe gebruiker op in Firebase
+      await push(ref(db, 'users'), { fname, lname, email, password: pw });
+
+      document.getElementById('register-form').style.display = 'none';
+      document.getElementById('register-success').style.display = 'block';
+
+    } catch (err) {
+      console.error(err);
+      showToast('Er ging iets mis, probeer opnieuw.');
+    }
+  };
+
+  function showToast(msg) {
+    const old = document.getElementById('toast'); if (old) old.remove();
+    const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
   }
-  users.push({ fname, lname, email, password: pw });
-  localStorage.setItem('musicmedia_users', JSON.stringify(users));
-
-  document.getElementById('register-form').style.display = 'none';
-  document.getElementById('register-success').style.display = 'block';
-}
-
-function showToast(msg) {
-  const old = document.getElementById('toast'); if (old) old.remove();
-  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-}
+  window.showToast = showToast;
 </script>
 </body>
 </html>
