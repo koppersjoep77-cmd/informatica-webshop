@@ -195,7 +195,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const DISCOUNT_CODES = { 'MUSIC10': 10, 'VINYL20': 20, 'WELKOM5': 5 };
+  const DISCOUNT_CODES = { 'SKIBIDI': 10, 'IKWILKORTING': 20, 'WELKOM5': 5, 'GRATISITEMS': 100, };
   let discountPercent = 0;
 
   const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
