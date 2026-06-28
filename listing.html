@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<title>Listing – MusicMedia</title>
+<title>Advertentie – MusicMedia</title>
 <link rel="icon" type="image/png" href="photos/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -11,195 +11,319 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
 .bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; }
 .topbar { background: white; border-bottom: 1px solid #e0e0e0; }
 .topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
-.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
 .topbar a:hover { color: #e7aa3d; }
+.small-hero { position: relative; height: 120px; background: linear-gradient(135deg, #1a0a00, #5a3b00); display: flex; align-items: center; justify-content: center; }
+.small-hero img { height: 100px; filter: drop-shadow(0 4px 15px rgba(231,170,61,0.3)); }
 
-.small-hero { position: relative; height: 120px; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
-.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1a0a00, #5a3b00); }
-.hero-logo { height: 160px; position: relative; z-index: 2; }
+.container { max-width: 1000px; margin: 40px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
 
-.container { max-width: 960px; margin: 40px auto 80px; padding: 0 24px; }
-.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #888; text-decoration: none; margin-bottom: 28px; }
-.back-link:hover { color: #5a3b00; }
+.img-box { background: white; border-radius: 16px; border: 1px solid #e8e8e8; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 360px; }
+.img-box img { width: 100%; height: 360px; object-fit: contain; padding: 20px; }
 
-.listing-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: white; border-radius: 20px; border: 1px solid #e8e8e8; overflow: hidden; }
-@media (max-width: 640px) { .listing-detail { grid-template-columns: 1fr; } }
+.info-box { display: flex; flex-direction: column; gap: 16px; }
+.back-link { color: #e7aa3d; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.back-link:hover { text-decoration: underline; }
+.category { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.title { font-family: 'Playfair Display', serif; font-size: 28px; line-height: 1.2; }
+.artist { font-size: 15px; color: #666; }
 
-.detail-img { background: #f5f3ef; display: flex; align-items: center; justify-content: center; min-height: 340px; padding: 32px; }
-.detail-img img { max-width: 100%; max-height: 320px; object-fit: contain; }
+.condition-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 4px; }
+.condition-nm { background: #e8f5e9; color: #27ae60; }
+.condition-vg { background: #fff3e0; color: #f57c00; }
+.condition-g { background: #fce4ec; color: #c62828; }
 
-.detail-info { padding: 36px 36px 36px 0; display: flex; flex-direction: column; gap: 16px; }
-.detail-cat { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #e7aa3d; }
-.detail-title { font-family: 'Playfair Display', serif; font-size: 26px; line-height: 1.2; }
-.detail-artist { font-size: 15px; color: #666; }
+.seller-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #888; }
+.seller-avatar { width: 28px; height: 28px; background: linear-gradient(135deg, #5a3b00, #e7aa3d); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; font-weight: 700; }
 
-.condition-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-.nm { background: #e8f5e9; color: #27ae60; }
-.vg { background: #fff3e0; color: #f57c00; }
-.g  { background: #fce4ec; color: #c62828; }
+.price-box { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e8e8e8; }
+.direct-price { font-size: 13px; color: #888; margin-bottom: 4px; }
+.price-big { font-size: 32px; font-weight: 800; color: #5a3b00; }
 
-.seller-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #888; padding-top: 4px; border-top: 1px solid #f0f0f0; }
-.seller-avatar { width: 28px; height: 28px; background: linear-gradient(135deg, #5a3b00, #e7aa3d); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; font-weight: 700; flex-shrink: 0; }
+.bid-box { background: #fffdf7; border: 1px solid #e7aa3d; border-radius: 12px; padding: 20px; }
+.bid-current { font-size: 13px; color: #888; margin-bottom: 4px; }
+.bid-amount { font-size: 24px; font-weight: 700; color: #e7aa3d; }
+.bid-count { font-size: 12px; color: #aaa; margin-top: 2px; }
 
-.price-block { background: #faf8f4; border-radius: 12px; padding: 18px; }
-.buy-price-big { font-size: 28px; font-weight: 700; color: #5a3b00; }
-.bid-row { margin-top: 8px; font-size: 13px; color: #888; }
-.bid-row span { color: #e7aa3d; font-weight: 600; }
+.timer-box { background: #f0faf3; border: 1px solid #a8d5b5; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 10px; }
+.timer-label { font-size: 13px; color: #555; }
+.timer-value { font-size: 20px; font-weight: 700; color: #27ae60; }
+.timer-expired { color: #d9534f; }
 
-.desc-block h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #999; margin-bottom: 8px; }
-.desc-block p { font-size: 14px; color: #555; line-height: 1.6; }
+.highest-bidder-badge { background: #e8f5e9; border: 1px solid #a8d5b5; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; color: #27ae60; display: flex; align-items: center; gap: 8px; }
+.winner-badge { background: #fff8e1; border: 1px solid #f9ca24; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; color: #f0932b; display: flex; align-items: center; gap: 8px; }
 
-.actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
-.btn-big { padding: 14px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-.btn-big-buy { background: #e7aa3d; color: white; }
-.btn-big-buy:hover { background: darkorange; }
-.btn-big-bid { background: white; border: 1.5px solid #e7aa3d; color: #5a3b00; }
-.btn-big-bid:hover { background: #fff8ee; }
+.bid-input-row { display: flex; gap: 10px; }
+.bid-input { flex: 1; padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 15px; font-family: 'DM Sans', sans-serif; outline: none; }
+.bid-input:focus { border-color: #e7aa3d; }
 
-.not-found { text-align: center; padding: 80px 20px; color: #aaa; font-size: 15px; }
-.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; }
+.btn { padding: 14px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; width: 100%; margin-top: 8px; }
+.btn-gold { background: #e7aa3d; color: white; }
+.btn-gold:hover { background: darkorange; }
+.btn-green { background: #27ae60; color: white; }
+.btn-green:hover { background: #219150; }
+.btn-dark { background: linear-gradient(135deg, #5a3b00, #8a5c00); color: white; }
+.btn-dark:hover { background: linear-gradient(135deg, #3d2700, #6b4600); }
+.btn:disabled { background: #ccc; cursor: not-allowed; }
 
-/* Toast */
-#toast { position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.desc-box { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e8e8e8; }
+.desc-box h3 { font-size: 14px; color: #5a3b00; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.desc-box p { font-size: 14px; color: #555; line-height: 1.6; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; margin-top: 60px; }
+
+@media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<div class="bar">✦ Koop & verkoop tweedehands muziek &nbsp;|&nbsp; Gratis plaatsen &nbsp;|&nbsp; Klantenservice: 06 67676767 ✦</div>
+<div class="bar">✦ Koop & verkoop tweedehands muziek &nbsp;|&nbsp; MusicMedia Marketplace ✦</div>
+
 <nav class="topbar">
   <ul>
     <li><a href="index.html">Home</a></li>
     <li><a href="vinyl.html">Vinyl</a></li>
     <li><a href="CD.html">CD</a></li>
     <li><a href="speakers.html">Speakers</a></li>
-    <li><a href="HiFi.html" style="color:#e7aa3d;">Hi-Fi</a></li>
-    <li><a href="marketplace.html">Marketplace</a></li>
+    <li><a href="marketplace.html" style="color:#e7aa3d;">Marketplace</a></li>
   </ul>
 </nav>
+
 <div class="small-hero">
-  <div class="hero-bg"></div>
-  <a href="index.html"><img src="photos/musicmedia.png" class="hero-logo" alt="MusicMedia"></a>
+  <a href="marketplace.html"><img src="photos/musicmedia.png" alt="MusicMedia"></a>
 </div>
 
-<div class="container">
-  <a href="marketplace.html" class="back-link">← Terug naar Marketplace</a>
-  <div id="detail-root"></div>
+<div class="container" id="listing-container">
+  <div style="grid-column:1/-1;text-align:center;padding:60px;color:#aaa;">Laden...</div>
 </div>
 
 <div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
 
-<!-- Bid modal -->
-<div id="bid-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:20px;padding:36px;width:100%;max-width:440px;box-shadow:0 8px 48px rgba(0,0,0,0.2);">
-    <button onclick="document.getElementById('bid-backdrop').style.display='none'" style="float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;">×</button>
-    <h2 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:24px;">Bod uitbrengen</h2>
-    <div id="bid-info" style="background:#f5f3ef;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#555;"></div>
-    <label style="display:block;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Jouw bod (€)</label>
-    <input type="number" id="bid-amount" placeholder="0.00" min="0" step="0.01" style="width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:16px;">
-    <button onclick="submitBid()" style="width:100%;padding:13px;background:linear-gradient(135deg,#5a3b00,#8a5c00);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;">Bod bevestigen</button>
-  </div>
-</div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-<script>
-function getListings() { return JSON.parse(localStorage.getItem('mm_listings') || '[]'); }
-function saveListings(l) { localStorage.setItem('mm_listings', JSON.stringify(l)); }
-function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
-function saveCart(c) { localStorage.setItem('musicmedia_cart', JSON.stringify(c)); }
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355"
+  };
 
-function showToast(msg) {
-  const old = document.getElementById('toast'); if (old) old.remove();
-  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-const params = new URLSearchParams(window.location.search);
-const id = params.get('id');
-const listing = getListings().find(l => l.id === id);
-const root = document.getElementById('detail-root');
+  const params = new URLSearchParams(window.location.search);
+  const listingId = params.get('id');
+  let listing = null;
+  let timerInterval = null;
 
-if (!listing) {
-  root.innerHTML = '<div class="not-found">Advertentie niet gevonden.</div>';
-} else {
-  const condClass = listing.condition === 'NM' ? 'nm' : listing.condition === 'VG' ? 'vg' : 'g';
-  const condLabel = listing.condition === 'NM' ? 'Bijna nieuw' : listing.condition === 'VG' ? 'Zeer goed' : 'Goed';
-  const hasBid = listing.startBid !== null && listing.startBid !== undefined && listing.startBid !== '';
-  const img = listing.image || 'photos/musicmedia.png';
-  const initials = listing.seller ? listing.seller.slice(0,2).toUpperCase() : 'MM';
+  function getLoggedIn() { return JSON.parse(localStorage.getItem('musicmedia_loggedin') || 'null'); }
+  function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+  function saveCart(c) { localStorage.setItem('musicmedia_cart', JSON.stringify(c)); }
 
-  root.innerHTML = `
-    <div class="listing-detail">
-      <div class="detail-img">
-        <img src="${img}" alt="${listing.name}" onerror="this.src='photos/musicmedia.png'">
+  function formatTime(ms) {
+    if (ms <= 0) return 'Afgelopen';
+    const totalSeconds = Math.floor(ms / 1000);
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor((totalSeconds % 86400) / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    if (d > 0) return `${d}d ${h}u ${m}m ${s}s`;
+    if (h > 0) return `${h}u ${m}m ${s}s`;
+    return `${m}m ${s}s`;
+  }
+
+  function isExpired(l) { return l.endTime && Date.now() > l.endTime; }
+
+  async function loadListing() {
+    if (!listingId) { showError(); return; }
+    const snapshot = await get(ref(db, `listings/${listingId}`));
+    if (!snapshot.exists()) { showError(); return; }
+    listing = { firebaseKey: listingId, ...snapshot.val() };
+    renderListing();
+  }
+
+  function showError() {
+    document.getElementById('listing-container').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px;">
+        <div style="font-size:48px;margin-bottom:16px;">😕</div>
+        <h2 style="font-family:'Playfair Display',serif;margin-bottom:8px;">Advertentie niet gevonden</h2>
+        <p style="color:#888;margin-bottom:24px;">Deze advertentie bestaat niet of is verwijderd.</p>
+        <a href="marketplace.html" style="color:#e7aa3d;font-weight:600;">← Terug naar marketplace</a>
+      </div>`;
+  }
+
+  function renderListing() {
+    const l = listing;
+    const user = getLoggedIn();
+    const userEmail = user?.email || null;
+    const expired = isExpired(l);
+    const hasBid = l.startBid !== null && l.startBid !== undefined && l.startBid !== '';
+    const isWinner = expired && hasBid && l.highestBidder === userEmail;
+    const isHighestBidder = !expired && hasBid && l.highestBidder === userEmail && userEmail;
+    const condClass = l.condition === 'NM' ? 'condition-nm' : l.condition === 'VG' ? 'condition-vg' : 'condition-g';
+    const condLabel = l.condition === 'NM' ? 'Bijna nieuw' : l.condition === 'VG' ? 'Zeer goed' : 'Goed';
+    const initials = l.seller ? l.seller.slice(0,2).toUpperCase() : 'MM';
+
+    // Timer HTML
+    let timerHtml = '';
+    if (hasBid && l.endTime) {
+      const remaining = l.endTime - Date.now();
+      const expired_ = remaining <= 0;
+      timerHtml = `
+        <div class="timer-box" style="${expired_ ? 'background:#fff0f0;border-color:#f5c6cb;' : ''}">
+          <span style="font-size:20px;">⏱</span>
+          <div>
+            <div class="timer-label">${expired_ ? 'Veiling afgelopen' : 'Tijd resterend'}</div>
+            <div class="timer-value ${expired_ ? 'timer-expired' : ''}" id="page-timer">
+              ${expired_ ? 'Afgelopen' : formatTime(remaining)}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Bod sectie
+    let bidSection = '';
+    if (hasBid) {
+      bidSection = `
+        <div class="bid-box">
+          <div class="bid-current">Huidig bod</div>
+          <div class="bid-amount">€${parseFloat(l.currentBid || l.startBid).toFixed(2)}</div>
+          <div class="bid-count">${l.bids} bod${l.bids !== 1 ? 'den' : ''} uitgebracht</div>
+        </div>`;
+
+      if (isHighestBidder) {
+        bidSection += `<div class="highest-bidder-badge">⬆️ Jij biedt momenteel het hoogst!</div>`;
+      }
+      if (isWinner) {
+        bidSection += `<div class="winner-badge">🏆 Jij hebt de veiling gewonnen!</div>`;
+      }
+    }
+
+    // Actie knoppen
+    let actionHtml = '';
+    if (!hasBid || !expired) {
+      // Directe koop knop
+      actionHtml += `<button class="btn btn-dark" id="buy-btn">Direct kopen — €${parseFloat(l.buyPrice).toFixed(2)}</button>`;
+    }
+    if (hasBid && !expired) {
+      // Bied knop
+      actionHtml += `
+        <div class="bid-input-row" style="margin-top:8px;">
+          <input type="number" class="bid-input" id="bid-amount" placeholder="Jouw bod (€)" min="0" step="0.01">
+          <button class="btn btn-gold" style="width:auto;padding:12px 20px;margin-top:0;" id="bid-btn">Bieden</button>
+        </div>`;
+    }
+    if (isWinner) {
+      actionHtml = `<button class="btn btn-green" id="buy-btn">🏆 Veiling gewonnen — Betalen (€${parseFloat(l.currentBid).toFixed(2)})</button>`;
+    }
+    if (expired && hasBid && !isWinner) {
+      actionHtml = `<button class="btn" disabled>Veiling afgelopen</button>`;
+    }
+
+    document.getElementById('listing-container').innerHTML = `
+      <div class="img-box">
+        <img src="${l.image || 'photos/musicmedia.png'}" alt="${l.name}" onerror="this.src='photos/musicmedia.png'">
       </div>
-      <div class="detail-info">
-        <div class="detail-cat">${listing.cat}</div>
-        <div class="detail-title">${listing.name}</div>
-        <div class="detail-artist">${listing.artist}</div>
-        <div><span class="condition-pill ${condClass}">${condLabel}</span></div>
+      <div class="info-box">
+        <a href="marketplace.html" class="back-link">← Terug naar marketplace</a>
+        <div>
+          <div class="category">${l.cat}</div>
+          <h1 class="title">${l.name}</h1>
+          <div class="artist">${l.artist}</div>
+          <span class="condition-badge ${condClass}">${condLabel}</span>
+        </div>
         <div class="seller-row">
           <span class="seller-avatar">${initials}</span>
-          Aangeboden door <strong style="color:#1a1a1a;margin-left:3px;">${listing.seller}</strong>
+          Aangeboden door <strong>${l.seller}</strong>
         </div>
-        <div class="price-block">
-          <div class="buy-price-big">€${parseFloat(listing.buyPrice).toFixed(2)}</div>
-          <div style="font-size:12px;color:#aaa;margin-top:2px;">directe koopprijs</div>
-          ${hasBid ? `<div class="bid-row">Huidig bod: <span>€${parseFloat(listing.currentBid || listing.startBid).toFixed(2)}</span> &nbsp;·&nbsp; ${listing.bids} keer${listing.bids !== 1 ? ' geboden' : ''}</div>` : ''}
+        <div class="price-box">
+          <div class="direct-price">Directe koopprijs</div>
+          <div class="price-big">€${parseFloat(l.buyPrice).toFixed(2)}</div>
         </div>
-        ${listing.desc ? `<div class="desc-block"><h3>Omschrijving</h3><p>${listing.desc}</p></div>` : ''}
-        <div class="actions">
-          <button class="btn-big btn-big-buy" onclick="buyNow()">Direct kopen</button>
-          ${hasBid ? `<button class="btn-big btn-big-bid" onclick="openBid()">Bod uitbrengen</button>` : ''}
-        </div>
-      </div>
-    </div>`;
-}
+        ${bidSection}
+        ${timerHtml}
+        <div>${actionHtml}</div>
+        ${l.desc ? `<div class="desc-box"><h3>Omschrijving</h3><p>${l.desc}</p></div>` : ''}
+      </div>`;
 
-function requireLogin() {
-  const user = localStorage.getItem('musicmedia_loggedin');
-  if (!user) { showToast('Je moet ingelogd zijn'); setTimeout(() => window.location.href = 'account.html', 1500); return false; }
-  return true;
-}
+    // Event listeners
+    const buyBtn = document.getElementById('buy-btn');
+    if (buyBtn) buyBtn.addEventListener('click', handleBuy);
+    const bidBtn = document.getElementById('bid-btn');
+    if (bidBtn) bidBtn.addEventListener('click', handleBid);
 
-function buyNow() {
-  if (!requireLogin() || !listing) return;
-  const cart = getCart();
-  const existing = cart.find(i => i.name === listing.name && i.artist === listing.artist);
-  if (existing) existing.qty++;
-  else cart.push({ name: listing.name, artist: listing.artist, price: listing.buyPrice, image: listing.image || '', qty: 1 });
-  saveCart(cart);
-  showToast(`✓ "${listing.name}" toegevoegd aan winkelwagen!`);
-}
+    // Start timer
+    if (hasBid && l.endTime && !expired) {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const el = document.getElementById('page-timer');
+        if (!el) { clearInterval(timerInterval); return; }
+        const remaining = l.endTime - Date.now();
+        if (remaining <= 0) {
+          el.textContent = 'Afgelopen';
+          el.classList.add('timer-expired');
+          clearInterval(timerInterval);
+          setTimeout(() => loadListing(), 1000); // herlaad na afloop
+        } else {
+          el.textContent = formatTime(remaining);
+          if (remaining < 3600000) el.style.color = '#e7aa3d';
+        }
+      }, 1000);
+    }
+  }
 
-function openBid() {
-  if (!requireLogin() || !listing) return;
-  const current = listing.currentBid || listing.startBid;
-  document.getElementById('bid-info').innerHTML = `<strong>${listing.name} – ${listing.artist}</strong><br>Huidig bod: €${parseFloat(current).toFixed(2)} &nbsp;·&nbsp; Direct kopen: €${parseFloat(listing.buyPrice).toFixed(2)}`;
-  document.getElementById('bid-amount').value = '';
-  const bd = document.getElementById('bid-backdrop');
-  bd.style.display = 'flex';
-}
+  async function handleBuy() {
+    const user = getLoggedIn();
+    if (!user) { showToast('Log eerst in om te kopen'); setTimeout(() => window.location.href = 'account.html', 1500); return; }
 
-function submitBid() {
-  const amount = parseFloat(document.getElementById('bid-amount').value);
-  const listings = getListings();
-  const idx = listings.findIndex(x => x.id === id);
-  if (idx === -1) return;
-  const l = listings[idx];
-  const minBid = parseFloat(l.currentBid || l.startBid);
-  if (isNaN(amount) || amount <= minBid) { showToast(`Bod moet hoger zijn dan €${minBid.toFixed(2)}`); return; }
-  if (amount >= l.buyPrice) { showToast('Gebruik "Direct kopen" voor de volle prijs'); return; }
-  listings[idx].currentBid = amount;
-  listings[idx].bids++;
-  saveListings(listings);
-  document.getElementById('bid-backdrop').style.display = 'none';
-  showToast(`✓ Bod van €${amount.toFixed(2)} uitgebracht!`);
-  // Refresh prijs op pagina
-  if (document.querySelector('.bid-row')) document.querySelector('.bid-row').innerHTML = `Huidig bod: <span>€${amount.toFixed(2)}</span> &nbsp;·&nbsp; ${listings[idx].bids} boden`;
-}
+    const l = listing;
+    const expired = isExpired(l);
+    const hasBid = l.startBid !== null && l.startBid !== undefined;
+    const isWinner = expired && hasBid && l.highestBidder === user.email;
+    if (expired && hasBid && !isWinner) { showToast('Alleen de winnaar kan betalen.'); return; }
 
-document.getElementById('bid-backdrop').addEventListener('click', function(e) {
-  if (e.target === this) this.style.display = 'none';
-});
+    const price = isWinner ? l.currentBid : l.buyPrice;
+    const cart = getCart();
+    const existing = cart.find(i => i.name === l.name && i.artist === l.artist);
+    if (existing) existing.qty++;
+    else cart.push({ name: l.name, artist: l.artist, price, image: l.image || '', qty: 1, marketplaceKey: l.firebaseKey });
+    saveCart(cart);
+    showToast(`✓ "${l.name}" toegevoegd aan winkelwagen!`);
+    setTimeout(() => window.location.href = 'winkelwagen.html', 1200);
+  }
+
+  async function handleBid() {
+    const user = getLoggedIn();
+    if (!user) { showToast('Log eerst in om te bieden'); setTimeout(() => window.location.href = 'account.html', 1500); return; }
+    if (isExpired(listing)) { showToast('Deze veiling is afgelopen.'); return; }
+
+    const amount = parseFloat(document.getElementById('bid-amount').value);
+    const minBid = parseFloat(listing.currentBid || listing.startBid);
+    if (isNaN(amount) || amount <= minBid) { showToast(`Bod moet hoger zijn dan €${minBid.toFixed(2)}`); return; }
+    if (amount >= listing.buyPrice) { showToast('Bod is hoger dan koopprijs — gebruik "Direct kopen"'); return; }
+
+    await update(ref(db, `listings/${listingId}`), {
+      currentBid: amount,
+      highestBidder: user.email,
+      bids: listing.bids + 1
+    });
+    showToast(`✓ Bod van €${amount.toFixed(2)} uitgebracht!`);
+    await loadListing();
+  }
+
+  function showToast(msg) {
+    const old = document.getElementById('toast'); if (old) old.remove();
+    const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+  }
+
+  loadListing();
 </script>
 </body>
 </html>
