@@ -299,249 +299,276 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
   </div>
 </div>
 
-<script>
-// ── Storage helpers ────────────────────────────────────────────────
-function getListings() { return JSON.parse(localStorage.getItem('mm_listings') || '[]'); }
-function saveListings(l) { localStorage.setItem('mm_listings', JSON.stringify(l)); }
-function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
-function saveCart(c) { localStorage.setItem('musicmedia_cart', JSON.stringify(c)); updateCartIcon(); }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, get, push, remove, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-// ── Seed demo listings if empty ───────────────────────────────────
-function seedDemos() { 
-  if (getListings().length > 0) return;
-  const demos = [
-    { id: 'd1', cat: 'Vinyl', name: "Don't be dumb", artist: "A$AP Rocky", condition: 'VG', buyPrice: 45, startBid: 20, currentBid: 28, bids: 3, seller: 'VinylKing', image: 'photos/asap rocky.jpg', desc: 'Originele 1982 pressing, hoes in goede staat.', ts: Date.now() - 86400000 },
-    { id: 'd2', cat: 'CD', name: 'OK Computer', artist: 'Radiohead', condition: 'NM', buyPrice: 18, startBid: null, currentBid: null, bids: 0, seller: 'CdCollector', image: 'photos/download.jpeg', desc: 'Nauwelijks gespeeld, compleet met booklet.', ts: Date.now() - 3600000 },
-    { id: 'd3', cat: 'Speakers / Hi-Fi', name: 'RP-600M', artist: 'Klipsch', condition: 'VG', buyPrice: 320, startBid: 200, currentBid: 240, bids: 5, seller: 'HiFiFreak', image: 'photos/klipsch.jpeg', desc: 'Boekenplank speakers, lichte krasjes op zijkant.', ts: Date.now() - 7200000 },
-    { id: 'd4', cat: 'Vinyl', name: 'Bully', artist: 'Kanye West, Ye', condition: 'G', buyPrice: 30, startBid: 10, currentBid: 14, bids: 2, seller: 'YElover67', image: 'photos/bully.jpg', desc: 'Labels zijn intact, plaat draait goed.', ts: Date.now() - 172800000 },
-  ];
-  saveListings(demos);
-}
-seedDemos();
-
-// ── State ─────────────────────────────────────────────────────────
-let activeCat = 'all';
-let activeBidId = null;
-let activeBuyId = null;
-
-// ── Render ────────────────────────────────────────────────────────
-function renderGrid() {
-  const sort = document.getElementById('sort-select').value;
-  let list = getListings().filter(l => activeCat === 'all' || l.cat === activeCat);
-  if (sort === 'price-asc') list.sort((a,b) => a.buyPrice - b.buyPrice);
-  else if (sort === 'price-desc') list.sort((a,b) => b.buyPrice - a.buyPrice);
-  else if (sort === 'bids') list.sort((a,b) => b.bids - a.bids);
-  else list.sort((a,b) => b.ts - a.ts);
-
-  const grid = document.getElementById('product-grid');
-  grid.innerHTML = '';
-
-  if (list.length === 0) {
-    grid.innerHTML = `<div class="empty-state"><div class="icon">🎵</div><p>Nog geen advertenties in deze categorie.<br>Wees de eerste!</p></div>`;
-    return;
-  }
-
-  list.forEach(l => {
-    const condClass = l.condition === 'NM' ? 'condition-nm' : l.condition === 'VG' ? 'condition-vg' : 'condition-g';
-    const condLabel = l.condition === 'NM' ? 'Bijna nieuw' : l.condition === 'VG' ? 'Zeer goed' : 'Goed';
-    const hasBid = l.startBid !== null && l.startBid !== undefined && l.startBid !== '';
-    const img = l.image || 'photos/musicmedia.png';
-    const initials = l.seller ? l.seller.slice(0,2).toUpperCase() : 'MM';
-
-const card = document.createElement('div');
-card.className = 'listing-card';
-card.style.cursor = 'pointer';
-card.innerHTML = `
-  ${hasBid ? '<span class="listing-badge">Veiling</span>' : '<span class="listing-badge buynow">Kopen</span>'}
-  <div class="listing-img-wrap">
-    <img src="${img}" alt="${l.name}" onerror="this.src='photos/musicmedia.png'">
-  </div>
-  <div class="listing-body">
-    <div class="listing-category">${l.cat}</div>
-    <div class="listing-name">${l.name} <span class="condition-badge ${condClass}">${condLabel}</span></div>
-    <div class="listing-artist">${l.artist}</div>
-    <div class="listing-seller">
-      <span class="seller-avatar">${initials}</span>
-      ${l.seller}
-    </div>
-    <div class="price-row">
-      <span class="buy-price">€${parseFloat(l.buyPrice).toFixed(2)}</span>
-      <span class="bid-label">direct</span>
-    </div>
-    ${hasBid ? `<div style="margin-top:4px;"><span class="current-bid">Huidig bod: €${parseFloat(l.currentBid || l.startBid).toFixed(2)}</span> <span class="bid-count">(${l.bids} bod${l.bids !== 1 ? 'den' : ''})</span></div>` : ''}
-    ${l.desc ? `<div style="font-size:12px;color:#999;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.desc}</div>` : ''}
-  </div>
-  <div class="listing-actions">
-    <button class="btn-buynow" onclick="openBuyModal('${l.id}')">Direct kopen</button>
-    ${hasBid ? `<button class="btn-bid" onclick="openBidModal('${l.id}')">Bieden</button>` : ''}
-  </div>`;
-
-card.addEventListener('click', function(e) {
-  if (e.target.tagName === 'BUTTON') return;
-  window.location.href = 'listing.html?id=' + l.id;
-});
-
-grid.appendChild(card);
-    grid.appendChild(card);
-  });  
-}     
-function filterCat(cat, btn) {
-  activeCat = cat;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderGrid();
-}
-
-// ── Sell modal ────────────────────────────────────────────────────
-function openSellModal() {
-  const user = localStorage.getItem('musicmedia_loggedin');
-  if (!user) {
-    showToast('Je moet ingelogd zijn om iets te verkopen');
-    setTimeout(() => window.location.href = 'account.html', 1500);
-    return;
-  }
-  document.getElementById('sell-modal').classList.add('open');
-}
-
-function handleSell() {
-  const name = document.getElementById('sell-name').value.trim();
-  const artist = document.getElementById('sell-artist').value.trim();
-  const cat = document.getElementById('sell-cat').value;
-  const condition = document.getElementById('sell-condition').value;
-  const buyPrice = parseFloat(document.getElementById('sell-buyprice').value);
-  const startBidVal = document.getElementById('sell-startbid').value;
-  const startBid = startBidVal ? parseFloat(startBidVal) : null;
-  const desc = document.getElementById('sell-desc').value.trim();
-  const img = document.getElementById('sell-img').value.trim();
-
-  if (!name || !artist || isNaN(buyPrice) || buyPrice <= 0) {
-    showToast('Vul minimaal titel, artiest en koopprijs in'); return;
-  }
-  if (startBid !== null && startBid >= buyPrice) {
-    showToast('Startbod moet lager zijn dan de koopprijs'); return;
-  }
-
-  const userObj = JSON.parse(localStorage.getItem('musicmedia_loggedin'));
-  const listing = {
-    id: 'l' + Date.now(),
-    cat, name, artist, condition,
-    buyPrice, startBid,
-    currentBid: startBid, bids: 0,
-    seller: userObj.fname + ' ' + userObj.lname,
-    image: img || '',
-    desc,
-    ts: Date.now()
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355"
   };
 
-  const listings = getListings();
-  listings.unshift(listing);
-  saveListings(listings);
-  closeModal('sell-modal');
-  clearSellForm();
-  renderGrid();
-  showToast('✓ Advertentie geplaatst!');
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-function clearSellForm() {
-  ['sell-name','sell-artist','sell-buyprice','sell-startbid','sell-desc','sell-img'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('img-preview').innerHTML = '<span>Voer een afbeelding-URL in</span>';
-}
+  // ── State ──────────────────────────────────────────────────────
+  let allListings = []; // { firebaseKey, ...data }
+  let activeCat = 'all';
+  let activeBidId = null;
+  let activeBuyId = null;
 
-function previewImg(url) {
-  const preview = document.getElementById('img-preview');
-  if (url) {
-    preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span>Afbeelding niet gevonden</span>'">`;
-  } else {
-    preview.innerHTML = '<span>Voer een afbeelding-URL in</span>';
+  // ── Cart helpers ───────────────────────────────────────────────
+  function getCart() { return JSON.parse(localStorage.getItem('musicmedia_cart') || '[]'); }
+  function saveCart(c) { localStorage.setItem('musicmedia_cart', JSON.stringify(c)); updateCartIcon(); }
+
+  function updateCartIcon() {
+    const total = getCart().reduce((s,i) => s + i.qty, 0);
+    const badge = document.getElementById('cart-badge');
+    if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
   }
-}
 
-// ── Bid modal ─────────────────────────────────────────────────────
-function openBidModal(id) {
-  const user = localStorage.getItem('musicmedia_loggedin');
-  if (!user) { showToast('Inloggen om te bieden'); setTimeout(() => window.location.href = 'account.html', 1500); return; }
-  const l = getListings().find(x => x.id === id);
-  if (!l) return;
-  activeBidId = id;
-  const current = l.currentBid || l.startBid;
-  document.getElementById('bid-modal-info').innerHTML = `
-    <div class="name">${l.name} – ${l.artist}</div>
-    <div class="prices">Huidig bod: <span>€${parseFloat(current).toFixed(2)}</span> &nbsp;·&nbsp; Direct kopen: <span>€${parseFloat(l.buyPrice).toFixed(2)}</span></div>`;
-  document.getElementById('bid-amount').value = '';
-  document.getElementById('bid-modal').classList.add('open');
-}
+  // ── Load listings from Firebase ────────────────────────────────
+  async function loadListings() {
+    const snapshot = await get(ref(db, 'listings'));
+    allListings = [];
 
-function submitBid() {
-  const amount = parseFloat(document.getElementById('bid-amount').value);
-  const listings = getListings();
-  const idx = listings.findIndex(x => x.id === activeBidId);
-  if (idx === -1) return;
-  const l = listings[idx];
-  const minBid = parseFloat(l.currentBid || l.startBid);
-  if (isNaN(amount) || amount <= minBid) {
-    showToast(`Bod moet hoger zijn dan €${minBid.toFixed(2)}`); return;
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        allListings.push({ firebaseKey: child.key, ...child.val() });
+      });
+    } else {
+      // Seed demo's als Firebase nog leeg is
+      await seedDemos();
+      return;
+    }
+
+    renderGrid();
   }
-  if (amount >= l.buyPrice) {
-    showToast('Bod is hoger dan koopprijs — gebruik "Direct kopen"'); return;
+
+  async function seedDemos() {
+    const demos = [
+      { cat: 'Vinyl', name: "Don't be dumb", artist: "A$AP Rocky", condition: 'VG', buyPrice: 45, startBid: 20, currentBid: 28, bids: 3, seller: 'VinylKing', image: 'photos/asap rocky.jpg', desc: 'Originele pressing, hoes in goede staat.', ts: Date.now() - 86400000 },
+      { cat: 'CD', name: 'OK Computer', artist: 'Radiohead', condition: 'NM', buyPrice: 18, startBid: null, currentBid: null, bids: 0, seller: 'CdCollector', image: 'photos/download.jpeg', desc: 'Nauwelijks gespeeld, compleet met booklet.', ts: Date.now() - 3600000 },
+      { cat: 'Speakers / Hi-Fi', name: 'RP-600M', artist: 'Klipsch', condition: 'VG', buyPrice: 320, startBid: 200, currentBid: 240, bids: 5, seller: 'HiFiFreak', image: 'photos/klipsch.jpeg', desc: 'Boekenplank speakers, lichte krasjes op zijkant.', ts: Date.now() - 7200000 },
+      { cat: 'Vinyl', name: 'Bully', artist: 'Kanye West', condition: 'G', buyPrice: 30, startBid: 10, currentBid: 14, bids: 2, seller: 'YElover67', image: 'photos/bully.jpg', desc: 'Labels zijn intact, plaat draait goed.', ts: Date.now() - 172800000 },
+    ];
+    for (const d of demos) await push(ref(db, 'listings'), d);
+    await loadListings();
   }
-  listings[idx].currentBid = amount;
-  listings[idx].bids++;
-  saveListings(listings);
-  closeModal('bid-modal');
-  renderGrid();
-  showToast(`✓ Bod van €${amount.toFixed(2)} uitgebracht!`);
-}
 
-// ── Buy now modal ─────────────────────────────────────────────────
-function openBuyModal(id) {
-  const user = localStorage.getItem('musicmedia_loggedin');
-  if (!user) { showToast('Inloggen om te kopen'); setTimeout(() => window.location.href = 'account.html', 1500); return; }
-  const l = getListings().find(x => x.id === id);
-  if (!l) return;
-  activeBuyId = id;
-  document.getElementById('buy-modal-info').innerHTML = `
-    <div class="name">${l.name} – ${l.artist}</div>
-    <div class="prices">Prijs: <span>€${parseFloat(l.buyPrice).toFixed(2)}</span> &nbsp;·&nbsp; Staat: <span>${l.condition}</span></div>`;
-  document.getElementById('buy-modal').classList.add('open');
-}
+  // ── Render ─────────────────────────────────────────────────────
+  window.renderGrid = function() {
+    const sort = document.getElementById('sort-select').value;
+    let list = allListings.filter(l => activeCat === 'all' || l.cat === activeCat);
+    if (sort === 'price-asc') list.sort((a,b) => a.buyPrice - b.buyPrice);
+    else if (sort === 'price-desc') list.sort((a,b) => b.buyPrice - a.buyPrice);
+    else if (sort === 'bids') list.sort((a,b) => b.bids - a.bids);
+    else list.sort((a,b) => b.ts - a.ts);
 
-function confirmBuy() {
-  const l = getListings().find(x => x.id === activeBuyId);
-  if (!l) return;
-  const cart = getCart();
-  const existing = cart.find(i => i.name === l.name && i.artist === l.artist);
-  if (existing) existing.qty++;
-  else cart.push({ name: l.name, artist: l.artist, price: l.buyPrice, image: l.image || '', qty: 1 });
-  saveCart(cart);
-  closeModal('buy-modal');
-  showToast(`✓ "${l.name}" toegevoegd aan winkelwagen!`);
-}
+    const grid = document.getElementById('product-grid');
+    grid.innerHTML = '';
 
-// ── Helpers ───────────────────────────────────────────────────────
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">🎵</div><p>Nog geen advertenties in deze categorie.<br>Wees de eerste!</p></div>`;
+      return;
+    }
 
-document.querySelectorAll('.modal-backdrop').forEach(b => {
-  b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
-});
+    list.forEach(l => {
+      const condClass = l.condition === 'NM' ? 'condition-nm' : l.condition === 'VG' ? 'condition-vg' : 'condition-g';
+      const condLabel = l.condition === 'NM' ? 'Bijna nieuw' : l.condition === 'VG' ? 'Zeer goed' : 'Goed';
+      const hasBid = l.startBid !== null && l.startBid !== undefined && l.startBid !== '';
+      const img = l.image || 'photos/musicmedia.png';
+      const initials = l.seller ? l.seller.slice(0,2).toUpperCase() : 'MM';
 
-function updateCartIcon() {
-  const total = getCart().reduce((s,i) => s + i.qty, 0);
-  const badge = document.getElementById('cart-badge');
-  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
-}
+      const card = document.createElement('div');
+      card.className = 'listing-card';
+      card.innerHTML = `
+        ${hasBid ? '<span class="listing-badge">Veiling</span>' : '<span class="listing-badge buynow">Kopen</span>'}
+        <div class="listing-img-wrap">
+          <img src="${img}" alt="${l.name}" onerror="this.src='photos/musicmedia.png'">
+        </div>
+        <div class="listing-body">
+          <div class="listing-category">${l.cat}</div>
+          <div class="listing-name">${l.name} <span class="condition-badge ${condClass}">${condLabel}</span></div>
+          <div class="listing-artist">${l.artist}</div>
+          <div class="listing-seller">
+            <span class="seller-avatar">${initials}</span>
+            ${l.seller}
+          </div>
+          <div class="price-row">
+            <span class="buy-price">€${parseFloat(l.buyPrice).toFixed(2)}</span>
+            <span class="bid-label">direct</span>
+          </div>
+          ${hasBid ? `<div style="margin-top:4px;"><span class="current-bid">Huidig bod: €${parseFloat(l.currentBid || l.startBid).toFixed(2)}</span> <span class="bid-count">(${l.bids} bod${l.bids !== 1 ? 'den' : ''})</span></div>` : ''}
+          ${l.desc ? `<div style="font-size:12px;color:#999;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.desc}</div>` : ''}
+        </div>
+        <div class="listing-actions">
+          <button class="btn-buynow">Direct kopen</button>
+          ${hasBid ? `<button class="btn-bid">Bieden</button>` : ''}
+        </div>`;
 
-function showToast(msg) {
-  const old = document.getElementById('toast'); if (old) old.remove();
-  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-}
+      card.querySelector('.btn-buynow').addEventListener('click', (e) => { e.stopPropagation(); openBuyModal(l.firebaseKey); });
+      if (hasBid) card.querySelector('.btn-bid').addEventListener('click', (e) => { e.stopPropagation(); openBidModal(l.firebaseKey); });
+      card.addEventListener('click', () => window.location.href = 'listing.html?id=' + l.firebaseKey);
+      grid.appendChild(card);
+    });
+  };
 
-const loggedIn = localStorage.getItem('musicmedia_loggedin');
-document.getElementById('account-link').href = loggedIn ? 'profiel.html' : 'account.html';
+  window.filterCat = function(cat, btn) {
+    activeCat = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  };
 
-updateCartIcon();
-renderGrid();
+  // ── Sell modal ─────────────────────────────────────────────────
+  window.openSellModal = function() {
+    if (!localStorage.getItem('musicmedia_loggedin')) {
+      showToast('Je moet ingelogd zijn om iets te verkopen');
+      setTimeout(() => window.location.href = 'account.html', 1500);
+      return;
+    }
+    document.getElementById('sell-modal').classList.add('open');
+  };
+
+  window.handleSell = async function() {
+    const name = document.getElementById('sell-name').value.trim();
+    const artist = document.getElementById('sell-artist').value.trim();
+    const cat = document.getElementById('sell-cat').value;
+    const condition = document.getElementById('sell-condition').value;
+    const buyPrice = parseFloat(document.getElementById('sell-buyprice').value);
+    const startBidVal = document.getElementById('sell-startbid').value;
+    const startBid = startBidVal ? parseFloat(startBidVal) : null;
+    const desc = document.getElementById('sell-desc').value.trim();
+    const img = document.getElementById('sell-img').value.trim();
+
+    if (!name || !artist || isNaN(buyPrice) || buyPrice <= 0) {
+      showToast('Vul minimaal titel, artiest en koopprijs in'); return;
+    }
+    if (startBid !== null && startBid >= buyPrice) {
+      showToast('Startbod moet lager zijn dan de koopprijs'); return;
+    }
+
+    const userObj = JSON.parse(localStorage.getItem('musicmedia_loggedin'));
+    const listing = {
+      cat, name, artist, condition,
+      buyPrice, startBid,
+      currentBid: startBid, bids: 0,
+      seller: userObj.fname + ' ' + userObj.lname,
+      image: img || '',
+      desc, ts: Date.now()
+    };
+
+    await push(ref(db, 'listings'), listing);
+    closeModal('sell-modal');
+    clearSellForm();
+    await loadListings();
+    showToast('✓ Advertentie geplaatst!');
+  };
+
+  window.clearSellForm = function() {
+    ['sell-name','sell-artist','sell-buyprice','sell-startbid','sell-desc','sell-img'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('img-preview').innerHTML = '<span>Voer een afbeelding-URL in</span>';
+  };
+
+  window.previewImg = function(url) {
+    const preview = document.getElementById('img-preview');
+    preview.innerHTML = url ? `<img src="${url}" onerror="this.parentElement.innerHTML='<span>Afbeelding niet gevonden</span>'">` : '<span>Voer een afbeelding-URL in</span>';
+  };
+
+  // ── Bid modal ──────────────────────────────────────────────────
+  window.openBidModal = function(key) {
+    if (!localStorage.getItem('musicmedia_loggedin')) {
+      showToast('Inloggen om te bieden');
+      setTimeout(() => window.location.href = 'account.html', 1500); return;
+    }
+    const l = allListings.find(x => x.firebaseKey === key);
+    if (!l) return;
+    activeBidId = key;
+    const current = l.currentBid || l.startBid;
+    document.getElementById('bid-modal-info').innerHTML = `
+      <div class="name">${l.name} – ${l.artist}</div>
+      <div class="prices">Huidig bod: <span>€${parseFloat(current).toFixed(2)}</span> &nbsp;·&nbsp; Direct kopen: <span>€${parseFloat(l.buyPrice).toFixed(2)}</span></div>`;
+    document.getElementById('bid-amount').value = '';
+    document.getElementById('bid-modal').classList.add('open');
+  };
+
+  window.submitBid = async function() {
+    const amount = parseFloat(document.getElementById('bid-amount').value);
+    const l = allListings.find(x => x.firebaseKey === activeBidId);
+    if (!l) return;
+    const minBid = parseFloat(l.currentBid || l.startBid);
+    if (isNaN(amount) || amount <= minBid) {
+      showToast(`Bod moet hoger zijn dan €${minBid.toFixed(2)}`); return;
+    }
+    if (amount >= l.buyPrice) {
+      showToast('Bod is hoger dan koopprijs — gebruik "Direct kopen"'); return;
+    }
+    await update(ref(db, `listings/${activeBidId}`), { currentBid: amount, bids: l.bids + 1 });
+    closeModal('bid-modal');
+    await loadListings();
+    showToast(`✓ Bod van €${amount.toFixed(2)} uitgebracht!`);
+  };
+
+  // ── Buy now modal ──────────────────────────────────────────────
+  window.openBuyModal = function(key) {
+    if (!localStorage.getItem('musicmedia_loggedin')) {
+      showToast('Inloggen om te kopen');
+      setTimeout(() => window.location.href = 'account.html', 1500); return;
+    }
+    const l = allListings.find(x => x.firebaseKey === key);
+    if (!l) return;
+    activeBuyId = key;
+    document.getElementById('buy-modal-info').innerHTML = `
+      <div class="name">${l.name} – ${l.artist}</div>
+      <div class="prices">Prijs: <span>€${parseFloat(l.buyPrice).toFixed(2)}</span> &nbsp;·&nbsp; Staat: <span>${l.condition}</span></div>`;
+    document.getElementById('buy-modal').classList.add('open');
+  };
+
+  window.confirmBuy = async function() {
+    const l = allListings.find(x => x.firebaseKey === activeBuyId);
+    if (!l) return;
+
+    // Voeg toe aan winkelwagen
+    const cart = getCart();
+    const existing = cart.find(i => i.name === l.name && i.artist === l.artist);
+    if (existing) existing.qty++;
+    else cart.push({ name: l.name, artist: l.artist, price: l.buyPrice, image: l.image || '', qty: 1 });
+    saveCart(cart);
+
+    // Verwijder advertentie uit Firebase
+    await remove(ref(db, `listings/${activeBuyId}`));
+
+    closeModal('buy-modal');
+    await loadListings();
+    showToast(`✓ "${l.name}" gekocht en uit de marketplace gehaald!`);
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────
+  window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+
+  document.querySelectorAll('.modal-backdrop').forEach(b => {
+    b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
+  });
+
+  function showToast(msg) {
+    const old = document.getElementById('toast'); if (old) old.remove();
+    const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+  }
+  window.showToast = showToast;
+
+  // ── Init ───────────────────────────────────────────────────────
+  const loggedIn = localStorage.getItem('musicmedia_loggedin');
+  document.getElementById('account-link').href = loggedIn ? 'profiel.html' : 'account.html';
+  updateCartIcon();
+  loadListings();
 </script>
 </body>
 </html>
