@@ -7,8 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
-
+body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; }
 .bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
 .topbar { background: white; border-bottom: 1px solid #e0e0e0; }
 .topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
@@ -20,50 +19,81 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
   background: rgba(255,255,255,0.9); padding: 8px; border-radius: 50%;
   box-shadow: 0 0 15px rgba(231,170,61,0.5);
   display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+  text-decoration: none;
 }
 .cart-icon { right: 20px; }
 .account-icon { right: 70px; }
 .cart-icon:hover, .account-icon:hover { transform: scale(1.1); }
 .cart-badge { position: absolute; top: -5px; right: -7px; background: #e7aa3d; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: none; align-items: center; justify-content: center; }
 
-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 20px; }
+.small-hero { position: relative; height: 140px; background: linear-gradient(135deg, #1a0a00 0%, #3d2000 40%, #5a3b00 70%, #2a1500 100%); display: flex; align-items: center; justify-content: center; }
+.small-hero img { height: 110px; filter: drop-shadow(0 4px 15px rgba(231,170,61,0.3)); }
 
-.profile-card {
-  background: white; border-radius: 20px; padding: 40px 36px;
-  box-shadow: 0 2px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(231,170,61,0.1);
-  width: 100%; max-width: 440px; text-align: center;
-}
+.container { max-width: 1000px; margin: 40px auto; padding: 0 24px; display: grid; grid-template-columns: 280px 1fr; gap: 28px; align-items: start; }
 
-.avatar {
-  width: 80px; height: 80px;
-  background: linear-gradient(135deg, #5a3b00, #e7aa3d);
-  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  font-size: 32px; margin-bottom: 16px;
-  box-shadow: 0 4px 20px rgba(231,170,61,0.35);
-}
+/* Sidebar */
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
 
-.profile-name { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 4px; }
-.profile-email { color: #888; font-size: 13px; margin-bottom: 32px; }
+.profile-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e8e8e8; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.avatar { width: 72px; height: 72px; background: linear-gradient(135deg, #5a3b00, #e7aa3d); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; font-weight: 700; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(231,170,61,0.3); }
+.profile-name { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 4px; }
+.profile-email { font-size: 13px; color: #888; margin-bottom: 20px; }
 
-.info-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 0; border-bottom: 1px solid #f0f0f0;
-  font-size: 14px;
-}
+.info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f3ef; font-size: 13px; }
 .info-row:last-of-type { border-bottom: none; }
-.info-label { color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-.info-value { color: #1a1a1a; font-weight: 500; }
+.info-label { color: #aaa; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; align-self: center; }
+.info-value { font-weight: 500; color: #1a1a1a; }
 
-.btn-logout {
-  width: 100%; margin-top: 28px; padding: 14px;
-  background: linear-gradient(135deg, #5a3b00, #8a5c00);
-  color: white; border: none; border-radius: 10px;
-  font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  cursor: pointer; transition: all 0.2s;
-}
-.btn-logout:hover { background: linear-gradient(135deg, #3d2700, #6b4600); transform: translateY(-1px); }
+.btn-logout { width: 100%; margin-top: 16px; padding: 11px; background: #f5f3ef; border: 1.5px solid #ddd; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #555; transition: all 0.2s; }
+.btn-logout:hover { background: #d9534f; color: white; border-color: #d9534f; }
 
-.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-card { background: white; border-radius: 12px; padding: 14px; border: 1px solid #e8e8e8; text-align: center; }
+.stat-value { font-size: 24px; font-weight: 800; color: #5a3b00; }
+.stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+/* Main */
+.main { display: flex; flex-direction: column; gap: 20px; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: #888; }
+
+.order-card { background: white; border-radius: 14px; border: 1px solid #e8e8e8; overflow: hidden; transition: box-shadow 0.2s; }
+.order-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+.order-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.order-id { font-size: 11px; color: #aaa; margin-bottom: 2px; }
+.order-date { font-size: 14px; font-weight: 600; }
+.order-right { display: flex; align-items: center; gap: 12px; }
+.order-total { font-size: 16px; font-weight: 800; color: #5a3b00; }
+.order-status { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #e7aa3d; color: white; }
+.order-chevron { font-size: 11px; color: #aaa; transition: transform 0.2s; }
+.order-chevron.open { transform: rotate(180deg); }
+
+.order-body { display: none; padding: 0 20px 20px; border-top: 1px solid #f5f3ef; }
+.order-body.open { display: block; }
+
+.order-section-label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
+
+.product-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #f0f0f0; font-size: 14px; }
+.product-row:last-child { border-bottom: none; }
+.product-name { font-weight: 600; }
+.product-sub { font-size: 12px; color: #888; }
+.product-price { font-weight: 700; color: #5a3b00; }
+
+.order-totaal-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; padding-top: 12px; border-top: 2px solid #f5f3ef; margin-top: 4px; }
+
+.addr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.addr-item { font-size: 13px; }
+.addr-item span { display: block; font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
+
+.empty-orders { text-align: center; padding: 50px 20px; color: #aaa; background: white; border-radius: 14px; border: 1px solid #e8e8e8; }
+.empty-orders .icon { font-size: 44px; margin-bottom: 12px; }
+.empty-orders p { font-size: 15px; margin-bottom: 20px; }
+.empty-orders a { display: inline-block; padding: 11px 22px; background: #e7aa3d; color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 13px; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; margin-top: 60px; }
+
+@media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -76,65 +106,204 @@ main { flex: 1; display: flex; align-items: center; justify-content: center; pad
     <span id="cart-badge" class="cart-badge"></span>
   </div>
 </a>
-
 <a href="profiel.html" class="account-icon">
   <img src="photos/account.png" alt="Account" style="height:30px;">
 </a>
 
 <nav class="topbar">
   <ul>
+    <li><a href="index.html">Home</a></li>
     <li><a href="vinyl.html">Vinyl</a></li>
     <li><a href="CD.html">CD</a></li>
     <li><a href="speakers.html">Speakers</a></li>
-    <li><a href="HiFi.html">Hi-Fi</a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
   </ul>
 </nav>
 
-<main>
-  <div class="profile-card">
-    <div class="avatar">🎵</div>
-    <div class="profile-name" id="profile-name"></div>
-    <div class="profile-email" id="profile-email"></div>
-    <div class="info-row">
-      <span class="info-label">Voornaam</span>
-      <span class="info-value" id="profile-fname"></span>
+<div class="small-hero">
+  <a href="index.html"><img src="photos/musicmedia.png" alt="MusicMedia"></a>
+</div>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="profile-card">
+      <div class="avatar" id="avatar">🎵</div>
+      <div class="profile-name" id="profile-name"></div>
+      <div class="profile-email" id="profile-email"></div>
+      <div class="info-row">
+        <span class="info-label">Voornaam</span>
+        <span class="info-value" id="profile-fname"></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Achternaam</span>
+        <span class="info-value" id="profile-lname"></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">E-mail</span>
+        <span class="info-value" id="profile-email2"></span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">Uitloggen</button>
     </div>
-    <div class="info-row">
-      <span class="info-label">Achternaam</span>
-      <span class="info-value" id="profile-lname"></span>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-orders">-</div>
+        <div class="stat-label">Bestellingen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-spent">-</div>
+        <div class="stat-label">Uitgegeven</div>
+      </div>
     </div>
-    <div class="info-row">
-      <span class="info-label">E-mailadres</span>
-      <span class="info-value" id="profile-email2"></span>
-    </div>
-    <button class="btn-logout" onclick="handleLogout()">Uitloggen</button>
   </div>
-</main>
+
+  <!-- Bestellingen -->
+  <div class="main">
+    <div>
+      <div class="section-title">Mijn bestellingen</div>
+      <div class="section-sub" id="orders-sub">Laden...</div>
+    </div>
+    <div id="orders-list"></div>
+  </div>
+
+</div>
 
 <div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
 
-<script>
-// Redirect naar login als niet ingelogd
-const raw = localStorage.getItem('musicmedia_loggedin');
-if (!raw) { window.location.href = 'account.html'; }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-const user = JSON.parse(raw);
-document.getElementById('profile-name').textContent = user.fname + ' ' + user.lname;
-document.getElementById('profile-email').textContent = user.email;
-document.getElementById('profile-fname').textContent = user.fname;
-document.getElementById('profile-lname').textContent = user.lname;
-document.getElementById('profile-email2').textContent = user.email;
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355"
+  };
 
-function handleLogout() {
-  localStorage.removeItem('musicmedia_loggedin');
-  window.location.href = 'account.html';
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-// Cart badge
-const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
-const total = cart.reduce((s, i) => s + i.qty, 0);
-const badge = document.getElementById('cart-badge');
-if (badge && total > 0) { badge.textContent = total; badge.style.display = 'flex'; }
+  // Redirect als niet ingelogd
+  const user = JSON.parse(localStorage.getItem('musicmedia_loggedin') || 'null');
+  if (!user) window.location.href = 'account.html';
+
+  // Vul profielgegevens in
+  const initials = (user.fname?.[0] || '') + (user.lname?.[0] || '');
+  document.getElementById('avatar').textContent = initials.toUpperCase() || '🎵';
+  document.getElementById('profile-name').textContent = `${user.fname} ${user.lname}`;
+  document.getElementById('profile-email').textContent = user.email;
+  document.getElementById('profile-fname').textContent = user.fname;
+  document.getElementById('profile-lname').textContent = user.lname;
+  document.getElementById('profile-email2').textContent = user.email;
+
+  // Cart badge
+  const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+  const cartTotal = cart.reduce((s,i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (badge && cartTotal > 0) { badge.textContent = cartTotal; badge.style.display = 'flex'; }
+
+  // Laad bestellingen
+  async function loadOrders() {
+    const snapshot = await get(ref(db, 'orders'));
+    let orders = [];
+
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        const o = child.val();
+        if (o.klant?.email === user.email) {
+          orders.push({ key: child.key, ...o });
+        }
+      });
+    }
+
+    // Nieuwste eerst
+    orders.sort((a, b) => new Date(b.datum) - new Date(a.datum));
+
+    // Stats
+    const totalSpent = orders.reduce((sum, o) => sum + Number(o.totaal || 0), 0);
+    document.getElementById('stat-orders').textContent = orders.length;
+    document.getElementById('stat-spent').textContent = '€' + totalSpent.toFixed(0);
+    document.getElementById('orders-sub').textContent =
+      orders.length === 0 ? 'Nog geen bestellingen' : `${orders.length} bestelling${orders.length !== 1 ? 'en' : ''} gevonden`;
+
+    const list = document.getElementById('orders-list');
+
+    if (orders.length === 0) {
+      list.innerHTML = `
+        <div class="empty-orders">
+          <div class="icon">📦</div>
+          <p>Je hebt nog geen bestellingen geplaatst.</p>
+          <a href="index.html">Ga winkelen →</a>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = '';
+    orders.forEach((order, i) => {
+      const productenHtml = (order.producten || []).map(p => `
+        <div class="product-row">
+          <div>
+            <div class="product-name">${p.name || '-'}</div>
+            <div class="product-sub">${p.artist || ''} · ${p.qty || 1}x</div>
+          </div>
+          <div class="product-price">€${(Number(p.price || 0) * (p.qty || 1)).toFixed(2)}</div>
+        </div>`).join('');
+
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.innerHTML = `
+        <div class="order-header" onclick="toggleOrder(${i})">
+          <div>
+            <div class="order-id">#${order.key?.slice(-6).toUpperCase()}</div>
+            <div class="order-date">${order.datum || '-'}</div>
+          </div>
+          <div class="order-right">
+            <span class="order-status">${order.status || 'Nieuw'}</span>
+            <span class="order-total">€${Number(order.totaal || 0).toFixed(2)}</span>
+            <span class="order-chevron" id="chev-${i}">▼</span>
+          </div>
+        </div>
+        <div class="order-body" id="body-${i}">
+          <div class="order-section-label">Producten</div>
+          ${productenHtml}
+          <div class="order-totaal-row">
+            <span>Totaal betaald</span>
+            <span>€${Number(order.totaal || 0).toFixed(2)}</span>
+          </div>
+          <div class="order-section-label">Bezorgadres</div>
+          <div class="addr-grid">
+            <div class="addr-item"><span>Naam</span>${order.klant?.naam || '-'}</div>
+            <div class="addr-item"><span>E-mail</span>${order.klant?.email || '-'}</div>
+            <div class="addr-item"><span>Adres</span>${order.adres?.straat || '-'}</div>
+            <div class="addr-item"><span>Plaats</span>${order.adres?.postcode || ''} ${order.adres?.plaats || '-'}</div>
+          </div>
+          ${order.kortingscode ? `
+            <div class="order-section-label">Kortingscode</div>
+            <div style="font-size:13px;font-weight:600;color:#27ae60;">✓ ${order.kortingscode}</div>` : ''}
+        </div>`;
+      list.appendChild(card);
+    });
+  }
+
+  window.toggleOrder = function(i) {
+    const body = document.getElementById(`body-${i}`);
+    const chev = document.getElementById(`chev-${i}`);
+    const open = body.classList.toggle('open');
+    chev.classList.toggle('open', open);
+  };
+
+  window.handleLogout = function() {
+    localStorage.removeItem('musicmedia_loggedin');
+    window.location.href = 'account.html';
+  };
+
+  loadOrders();
 </script>
 </body>
 </html>
