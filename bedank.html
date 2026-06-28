@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Bedankt! – MusicMedia</title>
+<link rel="icon" type="image/png" href="photos/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
+.bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; }
+.topbar { background: white; border-bottom: 1px solid #e0e0e0; }
+.topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
+.topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+.topbar a:hover { color: #e7aa3d; }
+
+main {
+  flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 20px;
+  background: radial-gradient(ellipse at 30% 50%, rgba(90,59,0,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 20%, rgba(231,170,61,0.06) 0%, transparent 50%), #f5f3ef;
+}
+
+.card {
+  background: white; border-radius: 20px; padding: 52px 44px; max-width: 480px; width: 100%;
+  text-align: center; box-shadow: 0 2px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(231,170,61,0.1);
+}
+
+.checkmark {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 36px; margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(39,174,96,0.3);
+  animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px; color: #1a1a1a; }
+.sub { font-size: 15px; color: #666; line-height: 1.6; margin-bottom: 32px; }
+.sub strong { color: #1a1a1a; }
+
+.info-box { background: #f5f3ef; border-radius: 12px; padding: 18px 20px; margin-bottom: 28px; text-align: left; }
+.info-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; }
+.info-row span:first-child { color: #888; }
+.info-row span:last-child { font-weight: 600; }
+
+.btn-home {
+  display: inline-block; padding: 14px 32px;
+  background: linear-gradient(135deg, #5a3b00, #8a5c00);
+  color: white; border-radius: 10px; text-decoration: none;
+  font-size: 14px; font-weight: 600; transition: all 0.2s;
+  margin: 6px;
+}
+.btn-home:hover { background: linear-gradient(135deg, #3d2700, #6b4600); transform: translateY(-1px); }
+
+.btn-orders {
+  display: inline-block; padding: 14px 32px;
+  background: white; border: 1.5px solid #e7aa3d;
+  color: #5a3b00; border-radius: 10px; text-decoration: none;
+  font-size: 14px; font-weight: 600; transition: all 0.2s;
+  margin: 6px;
+}
+.btn-orders:hover { background: #fffdf7; }
+
+.footer { background: #1a0a00; color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="bar">✦ Gratis bezorging vanaf €50 &nbsp;|&nbsp; 30 dagen retourrecht &nbsp;|&nbsp; Klantenservice: 06 67676767 ✦</div>
+
+<nav class="topbar">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="vinyl.html">Vinyl</a></li>
+    <li><a href="CD.html">CD</a></li>
+    <li><a href="speakers.html">Speakers</a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="card">
+    <div class="checkmark">✓</div>
+    <h1>Bedankt voor je bestelling!</h1>
+    <p class="sub">Je bestelling is succesvol geplaatst. Je ontvangt een bevestigingsmail op <strong id="bevestig-email"></strong></p>
+
+    <div class="info-box" id="order-info" style="display:none;">
+      <div class="info-row"><span>Naam</span><span id="info-naam"></span></div>
+      <div class="info-row"><span>E-mail</span><span id="info-email"></span></div>
+      <div class="info-row"><span>Totaal betaald</span><span id="info-totaal"></span></div>
+    </div>
+
+    <div>
+      <a href="index.html" class="btn-home">Verder winkelen</a>
+      <a href="profiel.html" class="btn-orders">Mijn bestellingen</a>
+    </div>
+  </div>
+</main>
+
+<div class="footer">© 2026 MusicMedia — Voor de echte muziekliefhebber</div>
+
+<script>
+  // Laat laatste bestelinfo zien vanuit sessionStorage
+  const info = JSON.parse(sessionStorage.getItem('laatste_bestelling') || 'null');
+  if (info) {
+    document.getElementById('bevestig-email').textContent = info.email;
+    document.getElementById('info-naam').textContent = info.naam;
+    document.getElementById('info-email').textContent = info.email;
+    document.getElementById('info-totaal').textContent = '€' + parseFloat(info.totaal).toFixed(2);
+    document.getElementById('order-info').style.display = 'block';
+    sessionStorage.removeItem('laatste_bestelling');
+  }
+</script>
+</body>
+</html>

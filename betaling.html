@@ -324,26 +324,50 @@
     };
 
     try {
-      await push(ref(db, 'orders'), order);
+  await push(ref(db, 'orders'), order);
 
-      
-      for (const item of cart) {
-        if (item.marketplaceKey) {
-          await remove(ref(db, `listings/${item.marketplaceKey}`));
-        }
-      }
-
-      localStorage.removeItem('musicmedia_cart');
-      inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
-      alert('Bestelling succesvol geplaatst!');
-      window.location.href = 'index.html';
-    } catch (err) {
-      console.error('Firebase fout:', err);
-      alert('Er ging iets mis. Probeer het opnieuw.');
-      btn.disabled = false;
-      btn.textContent = 'NU BETALEN';
+  // Verwijder marketplace items na betaling
+  for (const item of cart) {
+    if (item.marketplaceKey) {
+      await remove(ref(db, `listings/${item.marketplaceKey}`));
     }
-     });
+  }
+
+  // Stuur e-mail via PHP
+  await fetch('bestelling.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      voornaam: document.querySelector('[name="voornaam"]').value,
+      tussenvoegsel: document.querySelector('[name="tussenvoegsel"]').value,
+      achternaam: document.querySelector('[name="achternaam"]').value,
+      email: document.querySelector('[name="email"]').value,
+      straat: document.querySelector('[name="straat"]').value,
+      huisnummer: document.querySelector('[name="huisnummer"]').value,
+      postcode: document.querySelector('[name="postcode"]').value,
+      woonplaats: document.querySelector('[name="woonplaats"]').value,
+      producten_lijst: hiddenProducts.value,
+      totaal_bedrag: hiddenTotal.value
+    })
+  });
+
+  localStorage.removeItem('musicmedia_cart');
+  inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
+
+  sessionStorage.setItem('laatste_bestelling', JSON.stringify({
+  naam: order.klant.naam,
+  email: order.klant.email,
+  totaal: totaal
+}));
+window.location.href = 'bedankt.html';
+
+} catch (err) {
+  console.error('Firebase fout:', err);
+  alert('Er ging iets mis. Probeer het opnieuw.');
+  btn.disabled = false;
+  btn.textContent = 'NU BETALEN';
+}
+  });
 </script>
 
 </body>
