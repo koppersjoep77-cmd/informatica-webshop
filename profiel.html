@@ -126,7 +126,6 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
 
 <div class="container">
 
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="profile-card">
       <div class="avatar" id="avatar">🎵</div>
@@ -159,7 +158,6 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
     </div>
   </div>
 
-  <!-- Bestellingen -->
   <div class="main">
     <div>
       <div class="section-title">Mijn bestellingen</div>
@@ -189,11 +187,11 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Redirect als niet ingelogd
+  // Redirect naar account.html als de gebruiker niet is ingelogd
   const user = JSON.parse(localStorage.getItem('musicmedia_loggedin') || 'null');
   if (!user) window.location.href = 'account.html';
 
-  // Vul profielgegevens in
+  // Vul de HTML profielgegevens in met data uit localStorage
   const initials = (user.fname?.[0] || '') + (user.lname?.[0] || '');
   document.getElementById('avatar').textContent = initials.toUpperCase() || '🎵';
   document.getElementById('profile-name').textContent = `${user.fname} ${user.lname}`;
@@ -202,13 +200,13 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
   document.getElementById('profile-lname').textContent = user.lname;
   document.getElementById('profile-email2').textContent = user.email;
 
-  // Cart badge
+  // Update de winkelwagen-badge in de koptekst
   const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
   const cartTotal = cart.reduce((s,i) => s + i.qty, 0);
   const badge = document.getElementById('cart-badge');
   if (badge && cartTotal > 0) { badge.textContent = cartTotal; badge.style.display = 'flex'; }
 
-  // Laad bestellingen
+  // Haal de bestellingen live op uit de Firebase Database
   async function loadOrders() {
     const snapshot = await get(ref(db, 'orders'));
     let orders = [];
@@ -216,16 +214,17 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
     if (snapshot.exists()) {
       snapshot.forEach(child => {
         const o = child.val();
+        // Zorg dat de klant alleen zijn eigen bestellingen te zien krijgt op basis van e-mail
         if (o.klant?.email === user.email) {
           orders.push({ key: child.key, ...o });
         }
       });
     }
 
-    // Nieuwste eerst
+    // Sorteer: Nieuwste bestellingen bovenaan
     orders.sort((a, b) => new Date(b.datum) - new Date(a.datum));
 
-    // Stats
+    // Bereken en toon statistieken (Aantal bestellingen & Totaal uitgegeven)
     const totalSpent = orders.reduce((sum, o) => sum + Number(o.totaal || 0), 0);
     document.getElementById('stat-orders').textContent = orders.length;
     document.getElementById('stat-spent').textContent = '€' + totalSpent.toFixed(0);
@@ -234,6 +233,7 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
 
     const list = document.getElementById('orders-list');
 
+    // Toon een lege melding als er nog niks is besteld
     if (orders.length === 0) {
       list.innerHTML = `
         <div class="empty-orders">
@@ -244,6 +244,7 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
       return;
     }
 
+    // Bouw de HTML-kaarten voor de bestellingen op
     list.innerHTML = '';
     orders.forEach((order, i) => {
       const productenHtml = (order.producten || []).map(p => `
@@ -291,6 +292,7 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #f5f3ef; color: #1
     });
   }
 
+  // Maak functies globaal beschikbaar zodat inline 'onclick' attributen ze kunnen aanroepen
   window.toggleOrder = function(i) {
     const body = document.getElementById(`body-${i}`);
     const chev = document.getElementById(`chev-${i}`);
