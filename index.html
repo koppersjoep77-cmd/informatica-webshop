@@ -308,6 +308,14 @@ window.renderProducts = function(productArray) {
 };
 
 updateCartIcon();
+
+// Controleer of de gebruiker is ingelogd
+const loggedIn = localStorage.getItem('musicmedia_loggedin');
+const accountLink = document.getElementById('account-link');
+
+if (accountLink) {
+    accountLink.href = loggedIn ? 'profiel.html' : 'account.html';
+}
 </script>
 
 </body>
