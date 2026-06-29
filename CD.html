@@ -152,121 +152,164 @@ h2 { max-width: 1200px; margin: 20px auto; padding: 0 20px; font-family: 'Frankl
 
 <div class="footer">© 2025 MUSICMEDIA — PREMIUM SOUND & CD SELECTION</div>
 
-<script>
-const products = [
-  {name: "The Bends", artist: "Radiohead", price: 9.99, image: "photos/bends.jpeg", label: "EMI Music", genre: "Rock"},
-  {name: "Heroes", artist: "David Bowie", price: 9.99, image: "photos/heroes.jpeg", label: "EMI Music", genre: "Pop"},
-  {name: "Low End Theory", artist: "Tribe Called Quest", price: 9.99, image: "photos/LET.jpeg", label: "JIVE", genre: "Hip-Hop"},
-  {name: "Graduation", artist: "Kanye West", price: 8.99, image: "photos/Graduation.jpeg", label: "Roc-A-Fella", genre: "Hip-Hop"},
-  {name: "Queen 40", artist: "Queen", price: 54.99, image: "photos/Queen.jpeg", label: "HollyWood", genre: "Rock"},
-  {name: "DAMN.", artist: "Kendrick Lamar", price: 9.99, image: "photos/damn.jpeg", label: "INTERSCOPE", genre: "Hip-Hop"},
-  {name: "Punk Tactics", artist: "Joey Valance & Brae", price: 16.99, image: "photos/punk.jpeg", label: "JVB", genre: "Hip-Hop"},
-  {name: "SOS", artist: "SZA", price: 12.99, image: "photos/SOS.jpeg", label: "TOP DAWG", genre: "R&B"},
-  {name: "Wish You Were Here", artist: "Pink Floyd", price: 19.99, image: "photos/wywh.jpeg", label: "COLOMBIA", genre: "Rock"},
-  {name: "IGOR", artist: "Tyler, The Creator", price: 16.99, image: "photos/IGOR.jpeg", label: "COLOMBIA", genre: "R&B"},
-  {name: "Guts", artist: "Olivia Rodrigo", price: 19.99, image: "photos/Guts.jpeg", label: "INTERSCOPE", genre: "Pop"},
-  {name: "MBDTF", artist: "Kanye West", price: 15.99, image: "photos/mbtdf.jpeg", label: "ROC-A-FELLA", genre: "Hip-Hop"},
-  {name: "Off The Wall", artist: "Michael Jackson", price: 9.99, image: "photos/otw.jpeg", label: "EPIC", genre: "Pop"},
-  {name: "Kid A", artist: "Radiohead", price: 9.99, image: "photos/kida.jpeg", label: "PARLOPHONE", genre: "Rock"},
-  {name: "What's Going On", artist: "Marvin Gaye", price: 9.99, image: "photos/gay.jpeg", label: "TAMILA", genre: "R&B"},
-];
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-let filteredList = [...products];
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355",
+    measurementId: "G-E0VRK1ZSZ7"
+  };
 
-function renderProducts(list) {
-  const container = document.getElementById('product-container');
-  container.innerHTML = '';
-  list.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
-    card.innerHTML = `
-      <a href="${url}" style="text-decoration:none; color:inherit;">
-        <img src="${p.image}" alt="${p.name}">
-        <div class="product-info">
-          <h3>${p.name}</h3>
-          <p class="artist">${p.artist}</p>
-          <p class="price">€${p.price.toFixed(2)}</p>
-        </div>
-      </a>
-      <button class="add-to-cart" onclick="addToCart('${p.name}', '${p.artist}', ${p.price}, '${p.image}')">In winkelwagen</button>
-    `;
-    container.appendChild(card);
-  });
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-function filterGenre(genre, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  
-  if (genre === 'all') {
-    filteredList = [...products];
-    document.getElementById('grid-title').textContent = "Alle CD's";
-  } else {
-    filteredList = products.filter(p => p.genre.toLowerCase() === genre.toLowerCase());
-    document.getElementById('grid-title').textContent = genre + " CD Collectie";
-  }
-  sortProducts();
-}
+  let allCDProducts = [];
+  let filteredList = [];
 
-function sortProducts() {
-  const val = document.getElementById('sort-select').value;
-  if (val === 'asc') filteredList.sort((a, b) => a.price - b.price);
-  if (val === 'desc') filteredList.sort((a, b) => b.price - a.price);
-  renderProducts(filteredList);
-}
+  async function fetchCDs() {
+    const container = document.getElementById('product-container');
+    container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Laden...</p>';
 
-function handleSearch(e) {
-  e.preventDefault();
-  const q = document.getElementById('search-input').value.toLowerCase();
-  filteredList = products.filter(p => p.name.toLowerCase().includes(q) || p.artist.toLowerCase().includes(q));
-  document.getElementById('grid-title').textContent = "Zoekresultaten voor: " + q;
-  renderProducts(filteredList);
-}
+    const q = query(ref(db, 'products'), orderByChild('category'), equalTo('cd'));
 
-function addToCart(name, artist, price, image) {
-  let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
-  const existing = cart.find(i => i.name === name);
-  if (existing) existing.qty++;
-  else cart.push({ name, artist, price, image, qty: 1 });
-  localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
-  updateCartIcon();
-  showToast(`"${name}" toegevoegd!`);
-}
+    try {
+      const snapshot = await get(q);
+      if (snapshot.exists()) {
+        allCDProducts = Object.values(snapshot.val());
+        filteredList = [...allCDProducts];
 
-function updateCartIcon() {
-  const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
-  const total = cart.reduce((s, i) => s + i.qty, 0);
-  const badge = document.getElementById('cart-badge');
-  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
-}
-
-const loggedIn = localStorage.getItem('musicmedia_loggedin');
-const accountLink = document.getElementById('account-link');
-if (loggedIn) {
-  accountLink.href = 'profiel.html';
-} else {
-  accountLink.href = 'account.html';
-}
-
-function showToast(msg) {
-  const old = document.getElementById('toast'); if (old) old.remove();
-  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-}
-
-window.onload = () => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("search");
-    if(q) {
-        document.getElementById('search-input').value = q;
-        filteredList = products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.artist.toLowerCase().includes(q.toLowerCase()));
-        document.getElementById('grid-title').textContent = "Zoekresultaten";
+        const params = new URLSearchParams(window.location.search);
+        const searchQuery = params.get("search");
+        if (searchQuery) {
+          document.getElementById('search-input').value = searchQuery;
+          handleSearchQuery(searchQuery);
+        } else {
+          sortProducts();
+        }
+      } else {
+        container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Geen CD\'s gevonden.</p>';
+      }
+    } catch (error) {
+      console.error("Fout:", error);
+      container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Fout bij laden.</p>';
     }
+  }
+
+  function renderProducts(list) {
+    const container = document.getElementById('product-container');
+    container.innerHTML = '';
+
+    if (list.length === 0) {
+      container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Geen resultaten gevonden.</p>';
+      return;
+    }
+
+    list.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
+      const opVoorraad = p.stock === undefined || p.stock > 0;
+
+      card.innerHTML = `
+        <a href="${url}" style="text-decoration:none; color:inherit;">
+          <img src="${p.image}" alt="${p.name}">
+          <div class="product-info">
+            <h3>${p.name}</h3>
+            <p class="artist">${p.artist}</p>
+            <p class="price">€${Number(p.price).toFixed(2)}</p>
+            <p style="font-size:12px; margin-top:4px; color:${opVoorraad ? '#27ae60' : '#d9534f'}; font-weight:600;">
+              ${opVoorraad ? (p.stock !== undefined ? `Nog ${p.stock} op voorraad` : 'Op voorraad') : 'Uitverkocht'}
+            </p>
+          </div>
+        </a>
+        <button class="add-to-cart"
+          ${opVoorraad ? '' : 'disabled'}
+          style="${opVoorraad ? '' : 'background:#ccc; cursor:not-allowed;'}">
+          ${opVoorraad ? 'In winkelwagen' : 'Uitverkocht'}
+        </button>
+      `;
+
+      if (opVoorraad) {
+        card.querySelector('.add-to-cart').addEventListener('click', () => addToCart(p));
+      }
+
+      container.appendChild(card);
+    });
+  }
+
+  function filterGenre(genre, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('grid-title').textContent = genre === 'all' ? "Alle CD's" : genre + " CD Collectie";
+    filteredList = genre === 'all' ? [...allCDProducts] : allCDProducts.filter(p => p.genre === genre);
+    sortProducts();
+  }
+
+  function sortProducts() {
+    const val = document.getElementById('sort-select').value;
+    if (val === 'asc') filteredList.sort((a, b) => a.price - b.price);
+    else if (val === 'desc') filteredList.sort((a, b) => b.price - a.price);
     renderProducts(filteredList);
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    handleSearchQuery(document.getElementById('search-input').value);
+  }
+
+  function handleSearchQuery(q) {
+    const lower = q.toLowerCase();
+    filteredList = allCDProducts.filter(p =>
+      p.name.toLowerCase().includes(lower) || p.artist.toLowerCase().includes(lower)
+    );
+    document.getElementById('grid-title').textContent = "Zoekresultaten voor: " + q;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn').classList.add('active');
+    sortProducts();
+  }
+
+  function addToCart(p) {
+    let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+    const existing = cart.find(i => i.name === p.name);
+    if (existing) existing.qty++;
+    else cart.push({ name: p.name, artist: p.artist, price: p.price, image: p.image, qty: 1 });
+    localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
     updateCartIcon();
-};
+    showToast(`"${p.name}" toegevoegd!`);
+  }
+
+  function updateCartIcon() {
+    const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+    const total = cart.reduce((s, i) => s + i.qty, 0);
+    const badge = document.getElementById('cart-badge');
+    if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+  }
+
+  function showToast(msg) {
+    const old = document.getElementById('toast'); if (old) old.remove();
+    const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#5a3b00;color:white;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+  }
+
+  window.filterGenre = filterGenre;
+  window.sortProducts = sortProducts;
+  window.handleSearch = handleSearch;
+
+  window.onload = () => {
+    fetchCDs();
+    updateCartIcon();
+    const loggedIn = localStorage.getItem('musicmedia_loggedin');
+    const accountLink = document.getElementById('account-link');
+    if (accountLink) accountLink.href = loggedIn ? 'profiel.html' : 'account.html';
+  };
 </script>
 </body>
 </html>

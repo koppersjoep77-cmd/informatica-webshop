@@ -257,34 +257,42 @@ h2 { max-width: 1200px; margin: 20px auto; padding: 0 20px; font-family: 'Frankl
 
   // 6. RENDER & WINKELWAGEN FUNCTIES
   function renderProducts(list) {
-      const container = document.getElementById('product-container');
-      container.innerHTML = '';
-      
-      if(list.length === 0) {
-          container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Geen resultaten gevonden.</p>';
-          return;
-      }
-      
-      list.forEach(p => {
-          const card = document.createElement('div');
-          card.className = 'product-card';
-          // Voeg genre mee in de URL als je dat later nodig hebt, maar name/artist/prijs/image/label is voldoende
-          const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
-          
-          card.innerHTML = `
-            <a href="${url}" style="text-decoration:none; color:inherit;">
-              <img src="${p.image}" alt="${p.name}">
-              <div class="product-info">
-                <h3>${p.name}</h3>
-                <p class="artist">${p.artist}</p>
-                <p class="price">€${Number(p.price).toFixed(2)}</p>
-              </div>
-            </a>
-            <button class="add-to-cart" onclick="addToCart('${p.name.replace(/'/g, "\\'")}', '${p.artist.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')">In winkelwagen</button>
-          `;
-          container.appendChild(card);
-      });
+  const container = document.getElementById('product-container');
+  container.innerHTML = '';
+
+  if (list.length === 0) {
+    container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Geen resultaten gevonden.</p>';
+    return;
   }
+
+  list.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    const url = `product.html?naam=${encodeURIComponent(p.name)}&artist=${encodeURIComponent(p.artist)}&prijs=${p.price}&image=${encodeURIComponent(p.image)}&label=${encodeURIComponent(p.label)}`;
+    const opVoorraad = p.stock === undefined || p.stock > 0;
+
+    card.innerHTML = `
+      <a href="${url}" style="text-decoration:none; color:inherit;">
+        <img src="${p.image}" alt="${p.name}">
+        <div class="product-info">
+          <h3>${p.name}</h3>
+          <p class="artist">${p.artist}</p>
+          <p class="price">€${Number(p.price).toFixed(2)}</p>
+          <p style="font-size:12px; margin-top:4px; color:${opVoorraad ? '#27ae60' : '#d9534f'}; font-weight:600;">
+            ${opVoorraad ? (p.stock !== undefined ? `Nog ${p.stock} op voorraad` : 'Op voorraad') : 'Uitverkocht'}
+          </p>
+        </div>
+      </a>
+      <button class="add-to-cart" 
+        onclick="${opVoorraad ? `addToCart('${p.name.replace(/'/g, "\\'")}', '${p.artist.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')` : ''}"
+        ${opVoorraad ? '' : 'disabled'}
+        style="${opVoorraad ? '' : 'background:#ccc; cursor:not-allowed;'}">
+        ${opVoorraad ? 'In winkelwagen' : 'Uitverkocht'}
+      </button>
+    `;
+    container.appendChild(card);
+  });
+}
 
   function addToCart(name, artist, price, image) {
       let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
