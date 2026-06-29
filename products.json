@@ -1,6 +1,6 @@
 {
   "products": {
-    "item1": { "name": "Bends", "artist": "Radiohead", "price": 9.99, "image": "photos/bends.jpeg", "label": "EMI Music", "genre": "Rock", "media": "CD", "category": "cd", "stock": 8 },
+    "item1": { "name": "The Bends", "artist": "Radiohead", "price": 9.99, "image": "photos/bends.jpeg", "label": "EMI Music", "genre": "Rock", "media": "CD", "category": "cd", "stock": 8 },
     "item2": { "name": "Heroes", "artist": "David Bowie", "price": 9.99, "image": "photos/heroes.jpeg", "label": "EMI Music", "genre": "Pop", "media": "CD", "category": "cd", "stock": 3 },
     "item3": { "name": "Low End Theory", "artist": "Tribe Called Quest", "price": 9.99, "image": "photos/LET.jpeg", "label": "JIVE", "genre": "Hip-Hop", "media": "CD", "category": "cd", "stock": 12 },
     "item4": { "name": "Graduation", "artist": "Kanye West", "price": 8.99, "image": "photos/Graduation.jpeg", "label": "Roc-A-Fella Records", "genre": "Hip-Hop", "media": "CD", "category": "cd", "stock": 2 },
