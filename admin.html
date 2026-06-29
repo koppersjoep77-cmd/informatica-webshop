@@ -80,11 +80,26 @@ body{
     color:#5a3b00;
 }
 
+/* Dashboard indeling */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .orders-box{
     background:white;
     border-radius:14px;
     overflow:hidden;
     border:1px solid #e7e7e7;
+    margin-bottom: 25px;
 }
 
 .orders-header{
@@ -133,6 +148,8 @@ tr:hover{
     border-radius:8px;
     color:white;
     font-weight:bold;
+    font-size: 13px;
+    transition: background 0.2s;
 }
 
 .view-btn{
@@ -150,6 +167,28 @@ tr:hover{
 
 .delete-btn:hover{
     background:#c9302c;
+}
+
+/* Input velden voor productbeheer */
+.admin-input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    outline: none;
+    font-size: 14px;
+}
+.admin-input-field:focus {
+    border-color: #e7aa3d;
+}
+.stock-input {
+    width: 65px;
+    padding: 6px;
+    border: 1.5px solid #eee;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
 }
 
 .empty{
@@ -207,13 +246,13 @@ tr:hover{
 </style>
 </head>
 <body>
-<!-- Login overlay -->
+
 <div id="login-overlay" style="
   position:fixed; inset:0; background:#1a0a00;
   display:flex; align-items:center; justify-content:center;
   z-index:9999; flex-direction:column; gap:16px;
 ">
-  <img src="photos/musicmedia.png" style="height:80px; filter:drop-shadow(0 4px 20px rgba(231,170,61,0.4));">
+  <img src="photos/musicmedia.png" style="height:80px; filter:drop-shadow(0 4px 20px rgba(231,170,61,0.4));" onerror="this.style.display='none'">
   <div style="background:white; padding:32px; border-radius:16px; width:320px; text-align:center;">
     <h2 style="color:#5a3b00; margin-bottom:6px;">Admin toegang</h2>
     <p style="font-size:13px; color:#888; margin-bottom:20px;">Voer de toegangscode in</p>
@@ -232,7 +271,6 @@ tr:hover{
 </div>
 
 <script>
-  // Controleer of al ingelogd in deze sessie
   if (sessionStorage.getItem('admin_auth') === 'true') {
     document.getElementById('login-overlay').style.display = 'none';
   }
@@ -243,7 +281,7 @@ tr:hover{
 
   function checkAdminPassword() {
     const input = document.getElementById('admin-pw-input').value;
-    const ADMIN_CODE = 'Nf,9Z5bol5!P'; // ← verander dit naar jouw code
+    const ADMIN_CODE = 'Nf,9Z5bol5!P'; 
 
     if (input === ADMIN_CODE) {
       sessionStorage.setItem('admin_auth', 'true');
@@ -255,73 +293,115 @@ tr:hover{
     }
   }
 </script>
+
 <div class="bar">
 🎵 MusicMedia Admin Dashboard
 </div>
 
 <div class="header">
-<h1>Bestellingen</h1>
-<p>Overzicht van alle orders</p>
+<h1>Admin Paneel</h1>
+<p>Overzicht van alle orders, producten en voorraden</p>
 </div>
 
 <div class="container">
 
-<div class="stats">
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-title">Bestellingen</div>
+      <div class="stat-value" id="orderCount">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Omzet</div>
+      <div class="stat-value" id="revenue">€0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Klanten</div>
+      <div class="stat-value" id="customerCount">0</div>
+    </div>
+  </div>
 
-<div class="stat-card">
-<div class="stat-title">Bestellingen</div>
-<div class="stat-value" id="orderCount">0</div>
-</div>
+  <div class="dashboard-grid">
+    
+    <div>
+      <div class="orders-box">
+        <div class="orders-header">
+          <h2>Alle bestellingen</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Klant</th>
+              <th>Adres</th>
+              <th>Totaal</th>
+              <th>Status</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
 
-<div class="stat-card">
-<div class="stat-title">Omzet</div>
-<div class="stat-value" id="revenue">€0</div>
-</div>
+      <div class="orders-box">
+        <div class="orders-header">
+          <h2>Voorraadbeheer (Producten)</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Artiest</th>
+              <th>Categorie</th>
+              <th>Prijs</th>
+              <th>Voorraad</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody id="productsTable">
+            <tr><td colspan="6" class="empty">Producten laden...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-<div class="stat-card">
-<div class="stat-title">Klanten</div>
-<div class="stat-value" id="customerCount">0</div>
-</div>
+    <div class="stat-card" style="position: sticky; top: 20px;">
+      <h2 style="color: #5a3b00; margin-bottom: 18px; font-size: 18px;">Nieuw Product Toevoegen</h2>
+      
+      <label style="font-size: 12px; font-weight: bold; color: #555;">PRODUCTNAAM</label>
+      <input type="text" id="new-p-name" class="admin-input-field" placeholder="bijv. Kid A">
+      
+      <label style="font-size: 12px; font-weight: bold; color: #555;">ARTIEST</label>
+      <input type="text" id="new-p-artist" class="admin-input-field" placeholder="bijv. Radiohead">
+      
+      <label style="font-size: 12px; font-weight: bold; color: #555;">CATEGORIE</label>
+      <select id="new-p-category" class="admin-input-field">
+        <option value="vinyl">Vinyl</option>
+        <option value="cd">CD</option>
+        <option value="speakers">Speakers</option>
+        <option value="hifi">Hi-Fi</option>
+      </select>
+      
+      <label style="font-size: 12px; font-weight: bold; color: #555;">PRIJS (€)</label>
+      <input type="number" id="new-p-price" class="admin-input-field" placeholder="0.00" step="0.01">
+      
+      <label style="font-size: 12px; font-weight: bold; color: #555;">BEGINVOORRAAD (STOCK)</label>
+      <input type="number" id="new-p-stock" class="admin-input-field" value="5">
+      
+      <label style="font-size: 12px; font-weight: bold; color: #555;">AFBEELDING BESTANDSNAAM</label>
+      <input type="text" id="new-p-image" class="admin-input-field" placeholder="bijv. kida.png">
+      
+      <button onclick="addProduct()" class="btn view-btn" style="width: 100%; padding: 12px; margin-top: 5px;">Product Opslaan 💾</button>
+    </div>
 
-</div>
-
-<div class="orders-box">
-
-<div class="orders-header">
-<h2>Alle bestellingen</h2>
-</div>
-
-<table>
-
-<thead>
-<tr>
-<th>ID</th>
-<th>Klant</th>
-<th>Adres</th>
-<th>Totaal</th>
-<th>Status</th>
-<th>Acties</th>
-</tr>
-</thead>
-
-<tbody id="ordersTable"></tbody>
-
-</table>
-
-</div>
-
+  </div>
 </div>
 
 <div class="modal" id="modal">
-<div class="modal-content">
-
-<span class="close" onclick="closeModal()">&times;</span>
-
-<h2>Bestelling details</h2>
-
-<div id="orderDetails"></div>
-
-</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Bestelling details</h2>
+    <div id="orderDetails"></div>
+  </div>
 </div>
 
 <div class="footer">
@@ -330,69 +410,110 @@ tr:hover{
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+  import { getDatabase, ref, get, remove, update, push } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
- const firebaseConfig = {
-  apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
-  authDomain: "informatica-webshop-b07fd.firebaseapp.com",
-  databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "informatica-webshop-b07fd",
-  storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
-  messagingSenderId: "806318839376",
-  appId: "1:806318839376:web:ba8b93ea91d0162b56e355",
-  measurementId: "G-E0VRK1ZSZ7"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355",
+    measurementId: "G-E0VRK1ZSZ7"
+  };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  let allOrders = []; // { firebaseKey, ...orderData }
+  let allOrders = []; 
+  let allProducts = [];
 
+  // Laad de volledige dashboard data (Orders én Producten)
   async function loadDashboard() {
-    const snapshot = await get(ref(db, 'orders'));
+    // ---- ORDERS GEGEVENS OPHALEN ----
+    const orderSnapshot = await get(ref(db, 'orders'));
     allOrders = [];
 
-    if (snapshot.exists()) {
-      snapshot.forEach(child => {
+    if (orderSnapshot.exists()) {
+      orderSnapshot.forEach(child => {
         allOrders.push({ firebaseKey: child.key, ...child.val() });
       });
     }
 
-    // Stats
+    // Statistieken berekenen
     document.getElementById("orderCount").textContent = allOrders.length;
     const revenue = allOrders.reduce((sum, o) => sum + Number(o.totaal || 0), 0);
     document.getElementById("revenue").textContent = "€" + revenue.toFixed(2);
     const customers = new Set(allOrders.map(o => o.klant?.email || ""));
     document.getElementById("customerCount").textContent = customers.size;
 
-    // Tabel
-    const table = document.getElementById("ordersTable");
-    table.innerHTML = "";
+    // Orders tabel renderen
+    const ordersTable = document.getElementById("ordersTable");
+    ordersTable.innerHTML = "";
 
     if (allOrders.length === 0) {
-      table.innerHTML = `<tr><td colspan="6" class="empty">Geen bestellingen gevonden</td></tr>`;
-      return;
+      ordersTable.innerHTML = `<tr><td colspan="6" class="empty">Geen bestellingen gevonden</td></tr>`;
+    } else {
+      allOrders.forEach(order => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${order.datum || "-"}</td>
+          <td>${order.klant?.naam || "-"}<br><small>${order.klant?.email || ""}</small></td>
+          <td>${order.adres?.straat || ""}<br>${order.adres?.postcode || ""} ${order.adres?.plaats || ""}</td>
+          <td>€${Number(order.totaal || 0).toFixed(2)}</td>
+          <td><span class="status">${order.status || "Nieuw"}</span></td>
+          <td>
+            <button class="btn view-btn">Bekijken</button>
+            <button class="btn delete-btn">Verwijder</button>
+          </td>
+        `;
+        row.querySelector('.view-btn').addEventListener('click', () => showOrder(order.firebaseKey));
+        row.querySelector('.delete-btn').addEventListener('click', () => deleteOrder(order.firebaseKey));
+        ordersTable.appendChild(row);
+      });
     }
 
-    allOrders.forEach(order => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${order.datum || "-"}</td>
-        <td>${order.klant?.naam || "-"}<br><small>${order.klant?.email || ""}</small></td>
-        <td>${order.adres?.straat || ""}<br>${order.adres?.postcode || ""} ${order.adres?.plaats || ""}</td>
-        <td>€${Number(order.totaal || 0).toFixed(2)}</td>
-        <td><span class="status">${order.status || "Nieuw"}</span></td>
-        <td>
-          <button class="btn view-btn">Bekijken</button>
-          <button class="btn delete-btn" style="margin-left:5px;">Verwijder</button>
-        </td>
-      `;
-      row.querySelector('.view-btn').addEventListener('click', () => showOrder(order.firebaseKey));
-      row.querySelector('.delete-btn').addEventListener('click', () => deleteOrder(order.firebaseKey));
-      table.appendChild(row);
-    });
+    // ---- PRODUCTEN / VOORRAAD OPHALEN ----
+    const productSnapshot = await get(ref(db, 'products'));
+    allProducts = [];
+    const productsTable = document.getElementById("productsTable");
+    productsTable.innerHTML = "";
+
+    if (productSnapshot.exists()) {
+      productSnapshot.forEach(child => {
+        allProducts.push({ firebaseKey: child.key, ...child.val() });
+      });
+    }
+
+    if (allProducts.length === 0) {
+      productsTable.innerHTML = `<tr><td colspan="6" class="empty">Geen producten gevonden in database</td></tr>`;
+    } else {
+      allProducts.forEach(product => {
+        const row = document.createElement('tr');
+        const huidigeStock = product.stock !== undefined ? product.stock : 0;
+        
+        row.innerHTML = `
+          <td><strong>${product.name || "-"}</strong></td>
+          <td>${product.artist || "-"}</td>
+          <td style="text-transform: capitalize;">${product.category || "-"}</td>
+          <td>€${Number(product.price || 0).toFixed(2)}</td>
+          <td>
+            <input type="number" id="stock-input-${product.firebaseKey}" class="stock-input" value="${huidigeStock}" min="0">
+          </td>
+          <td>
+            <button class="btn view-btn save-stock-btn">Update</button>
+            <button class="btn delete-btn delete-prod-btn">Verwijder</button>
+          </td>
+        `;
+        row.querySelector('.save-stock-btn').addEventListener('click', () => updateStock(product.firebaseKey));
+        row.querySelector('.delete-prod-btn').addEventListener('click', () => deleteProduct(product.firebaseKey));
+        productsTable.appendChild(row);
+      });
+    }
   }
 
+  // Bestelling bekijken modal
   window.showOrder = function(key) {
     const order = allOrders.find(o => o.firebaseKey === key);
     if (!order) return;
@@ -427,16 +548,95 @@ tr:hover{
     document.getElementById("modal").style.display = "flex";
   };
 
+  // Bestelling handmatig wissen
   window.deleteOrder = async function(key) {
     if (!confirm("Weet je zeker dat je deze bestelling wilt verwijderen?")) return;
     await remove(ref(db, `orders/${key}`));
     loadDashboard();
   };
 
+  // VOORRAAD UPDATE FUNCTIE
+  window.updateStock = async function(key) {
+    const inputElement = document.getElementById(`stock-input-${key}`);
+    const nieuweStock = parseInt(inputElement.value);
+
+    if (isNaN(nieuweStock) || nieuweStock < 0) {
+      alert("Voer een geldige, positieve waarde in voor de voorraad.");
+      return;
+    }
+
+    try {
+      await update(ref(db, `products/${key}`), { stock: nieuweStock });
+      alert("Voorraad succesvol aangepast!");
+      loadDashboard();
+    } catch (err) {
+      console.error(err);
+      alert("Er ging iets mis bij het updaten van de voorraad.");
+    }
+  };
+
+  // PRODUCT WISSEN FUNCTIE
+  window.deleteProduct = async function(key) {
+    if (!confirm("Weet je zeker dat je dit product permanent uit de winkel wilt verwijderen?")) return;
+    try {
+      await remove(ref(db, `products/${key}`));
+      loadDashboard();
+    } catch (err) {
+      console.error(err);
+      alert("Fout bij het verwijderen van het product.");
+    }
+  };
+
+  // NIEUW PRODUCT TOEVOEGEN FUNCTIE
+  window.addProduct = async function() {
+    const name = document.getElementById("new-p-name").value.trim();
+    const artist = document.getElementById("new-p-artist").value.trim();
+    const category = document.getElementById("new-p-category").value;
+    const price = parseFloat(document.getElementById("new-p-price").value);
+    const stock = parseInt(document.getElementById("new-p-stock").value);
+    let image = document.getElementById("new-p-image").value.trim();
+
+    if (!name || !artist || isNaN(price) || isNaN(stock) || !image) {
+      alert("Vul alle verplichte velden volledig in.");
+      return;
+    }
+
+    // Zorg ervoor dat de mapnaam klopt
+    if (!image.startsWith("photos/")) {
+      image = "photos/" + image;
+    }
+
+    try {
+      await push(ref(db, 'products'), {
+        name: name,
+        artist: artist,
+        category: category,
+        price: price,
+        stock: stock,
+        image: image
+      });
+
+      alert("Product succesvol aan de webshop toegevoegd!");
+      
+      // Formulier leegmaken
+      document.getElementById("new-p-name").value = "";
+      document.getElementById("new-p-artist").value = "";
+      document.getElementById("new-p-price").value = "";
+      document.getElementById("new-p-stock").value = "5";
+      document.getElementById("new-p-image").value = "";
+
+      loadDashboard();
+    } catch (err) {
+      console.error(err);
+      alert("Er ging iets mis bij het toevoegen van het product.");
+    }
+  };
+
   window.closeModal = function() {
     document.getElementById("modal").style.display = "none";
   };
 
+  // Start het dashboard op
   loadDashboard();
 </script>
 
