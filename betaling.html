@@ -182,23 +182,23 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getDatabase, ref, push, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+  import { getDatabase, ref, push, remove, get, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
   const firebaseConfig = {
-  apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
-  authDomain: "informatica-webshop-b07fd.firebaseapp.com",
-  databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "informatica-webshop-b07fd",
-  storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
-  messagingSenderId: "806318839376",
-  appId: "1:806318839376:web:ba8b93ea91d0162b56e355",
-  measurementId: "G-E0VRK1ZSZ7"
-};
+    apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
+    authDomain: "informatica-webshop-b07fd.firebaseapp.com",
+    databaseURL: "https://informatica-webshop-b07fd-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "informatica-webshop-b07fd",
+    storageBucket: "informatica-webshop-b07fd.firebasestorage.app",
+    messagingSenderId: "806318839376",
+    appId: "1:806318839376:web:ba8b93ea91d0162b56e355",
+    measurementId: "G-E0VRK1ZSZ7"
+  };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const DISCOUNT_CODES = { 'SKIBIDI': 10, 'IKWILKORTING': 20, 'WELKOM5': 5, 'GRATISITEMS': 100, };
+  const DISCOUNT_CODES = { 'SKIBIDI': 10, 'IKWILKORTING': 20, 'WELKOM5': 5, 'GRATISITEMS': 100 };
   let discountPercent = 0;
 
   const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
@@ -324,51 +324,70 @@
       status: "Nieuw"
     };
 
-   try {
-  await push(ref(db, 'orders'), order);
+    try {
+      // Stap 1: Sla order op in Firebase
+      await push(ref(db, 'orders'), order);
 
-  // Verwijder marketplace items na betaling
-  for (const item of cart) {
-    if (item.marketplaceKey) {
-      await remove(ref(db, `listings/${item.marketplaceKey}`));
+      // Stap 2: Verwijder marketplace items na betaling
+      for (const item of cart) {
+        if (item.marketplaceKey) {
+          await remove(ref(db, `listings/${item.marketplaceKey}`));
+        }
+      }
+
+      // Stap 3: Verlaag stock in Firebase
+      const productsSnapshot = await get(ref(db, 'products'));
+      if (productsSnapshot.exists()) {
+        const updates = {};
+        productsSnapshot.forEach(child => {
+          const product = child.val();
+          const cartItem = cart.find(i => i.name === product.name);
+          if (cartItem && product.stock !== undefined) {
+            const nieuweStock = Math.max(0, product.stock - cartItem.qty);
+            updates[`products/${child.key}/stock`] = nieuweStock;
+          }
+        });
+        if (Object.keys(updates).length > 0) {
+          await update(ref(db), updates);
+        }
+      }
+
+      // Stap 4: Stuur e-mail via EmailJS
+      try {
+        emailjs.init('_-KiRNBEq7SH2kqaE');
+        await emailjs.send('service_su4t98q', 'template_0zx0f2m', {
+          voornaam: document.querySelector('[name="voornaam"]').value,
+          naam: order.klant.naam,
+          email: document.querySelector('[name="email"]').value,
+          straat: document.querySelector('[name="straat"]').value,
+          huisnummer: document.querySelector('[name="huisnummer"]').value,
+          postcode: document.querySelector('[name="postcode"]').value,
+          woonplaats: document.querySelector('[name="woonplaats"]').value,
+          producten: hiddenProducts.value,
+          totaal: hiddenTotal.value
+        });
+      } catch (mailErr) {
+        console.warn('E-mail kon niet worden verstuurd:', mailErr);
+      }
+
+      // Stap 5: Afronden
+      localStorage.removeItem('musicmedia_cart');
+      inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
+
+      sessionStorage.setItem('laatste_bestelling', JSON.stringify({
+        naam: order.klant.naam,
+        email: order.klant.email,
+        totaal: totaal
+      }));
+
+      window.location.href = 'bedankt.html';
+
+    } catch (err) {
+      console.error('Firebase fout:', err);
+      alert('Er ging iets mis bij het opslaan van je bestelling. Probeer het opnieuw.');
+      btn.disabled = false;
+      btn.textContent = 'NU BETALEN';
     }
-  }
-
-  // Stuur e-mail via EmailJS
-  try {
-    emailjs.init('_-KiRNBEq7SH2kqaE');
-    await emailjs.send('service_su4t98q', 'template_0zx0f2m', {
-      voornaam: document.querySelector('[name="voornaam"]').value,
-      naam: order.klant.naam,
-      email: document.querySelector('[name="email"]').value,
-      straat: document.querySelector('[name="straat"]').value,
-      huisnummer: document.querySelector('[name="huisnummer"]').value,
-      postcode: document.querySelector('[name="postcode"]').value,
-      woonplaats: document.querySelector('[name="woonplaats"]').value,
-      producten: hiddenProducts.value,
-      totaal: hiddenTotal.value
-    });
-  } catch (mailErr) {
-    console.warn('E-mail kon niet worden verstuurd:', mailErr);
-  }
-
-  localStorage.removeItem('musicmedia_cart');
-  inputs.forEach(input => localStorage.removeItem('checkout_' + input.name));
-
-  sessionStorage.setItem('laatste_bestelling', JSON.stringify({
-    naam: order.klant.naam,
-    email: order.klant.email,
-    totaal: totaal
-  }));
-
-  window.location.href = 'bedank.html';
-
-} catch (err) {
-  console.error('Firebase fout:', err);
-  alert('Er ging iets mis bij het opslaan van je bestelling. Probeer het opnieuw.');
-  btn.disabled = false;
-  btn.textContent = 'NU BETALEN';
-}
   });
 </script>
 
