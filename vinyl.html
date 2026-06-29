@@ -153,8 +153,6 @@ h2 { max-width: 1200px; margin: 20px auto; padding: 0 20px; font-family: 'Frankl
   // 1. FIREBASE IMPORTS
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-
-  // 2. FIREBASE CONFIGURATIE (Vul hier je eigen gegevens in!)
   const firebaseConfig = {
   apiKey: "AIzaSyClNzFPAlQeihyZ41piBaZS3T_jhJt1sag",
   authDomain: "informatica-webshop-b07fd.firebaseapp.com",
@@ -283,26 +281,37 @@ h2 { max-width: 1200px; margin: 20px auto; padding: 0 20px; font-family: 'Frankl
           </p>
         </div>
       </a>
-      <button class="add-to-cart" 
-        onclick="${opVoorraad ? `addToCart('${p.name.replace(/'/g, "\\'")}', '${p.artist.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')` : ''}"
+      <button class="add-to-cart"
         ${opVoorraad ? '' : 'disabled'}
         style="${opVoorraad ? '' : 'background:#ccc; cursor:not-allowed;'}">
         ${opVoorraad ? 'In winkelwagen' : 'Uitverkocht'}
       </button>
     `;
+
+    if (opVoorraad) {
+      card.querySelector('.add-to-cart').addEventListener('click', () => addToCart(p));
+    }
+
     container.appendChild(card);
   });
 }
 
-  function addToCart(name, artist, price, image) {
-      let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
-      const existing = cart.find(i => i.name === name);
-      if (existing) existing.qty++;
-      else cart.push({ name, artist, price, image, qty: 1 });
-      localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
-      updateCartIcon();
-      showToast(`"${name}" toegevoegd!`);
+function addToCart(p) {
+  let cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+  const existing = cart.find(i => i.name === p.name);
+  const inCart = existing ? existing.qty : 0;
+
+  if (p.stock !== undefined && inCart >= p.stock) {
+    showToast(`Maximaal ${p.stock} stuks beschikbaar!`);
+    return;
   }
+
+  if (existing) existing.qty++;
+  else cart.push({ name: p.name, artist: p.artist, price: p.price, image: p.image, qty: 1 });
+  localStorage.setItem('musicmedia_cart', JSON.stringify(cart));
+  updateCartIcon();
+  showToast(`"${p.name}" toegevoegd!`);
+}
 
   function updateCartIcon() {
       const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');

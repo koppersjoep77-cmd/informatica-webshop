@@ -6,13 +6,11 @@
 <link rel="icon" type="image/png" href="photos/favicon.png">
 
 <style>
-    
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f5f3ef; color: #1a1a1a; line-height: 1.6; }
 
     .bar { background: #5a3b00; color: white; padding: 6px 20px; font-size: 12px; text-align: center; letter-spacing: 0.5px; }
 
-   
     .topbar { background: white; border-bottom: 1px solid #e0e0e0; }
     .topbar ul { list-style: none; display: flex; justify-content: center; gap: 32px; padding: 12px 0; }
     .topbar a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; transition: color 0.2s; }
@@ -80,8 +78,8 @@
 </div>
 
 <div class="checkout-container">
-<form id="orderForm" style="flex: 1; display: flex; gap: 30px; width: 100%;">
-          <div class="naam">
+    <form id="orderForm" style="flex: 1; display: flex; gap: 30px; width: 100%;">
+        <div class="naam">
             <h2>Bestelling afronden</h2>
             
             <h3>Persoonlijke gegevens</h3>
@@ -141,29 +139,24 @@
         <div class="order-summary">
             <span class="summary-title">Jouw mandje</span>
             
-            <div id="summary-items" class="summary-items-list">
-                </div>
+            <div id="summary-items" class="summary-items-list"></div>
             
             <div class="summary-total">
                 <span>Totaalbedrag</span>
                 <span id="total-price">€0,00</span>
             </div>
-            <!-- KORTINGSCODE -->
+            
             <div style="margin-bottom: 15px;">
-            <p style="font-size:12px;font-weight:600;color:#5a3b00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Kortingscode</p>
-            <div style="display:flex;gap:8px;" id="discount-input-row">
-              <input type="text" id="discount-code" placeholder="Voer je code in"
-              style="flex:1;padding:10px 14px;border:1.5px solid #eee;border-radius:8px;font-size:13px;background:#fafafa;">
-             <button type="button" onclick="applyDiscount()"
-      style="padding:10px 14px;background:#5a3b00;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">
-      Toepassen
-    </button>
-  </div>
-  <p id="discount-msg" style="font-size:12px;margin-top:5px;min-height:16px;"></p>
-  <div id="discount-applied" style="display:none;background:#f0faf3;border:1px solid #a8d5b5;border-radius:8px;padding:8px 12px;display:none;justify-content:space-between;align-items:center;">
-    <span id="discount-label" style="font-size:13px;font-weight:600;color:#2d7a3a;"></span>
-    <button type="button" onclick="removeDiscount()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:18px;padding:0 4px;">×</button>
-  </div>
+                <p style="font-size:12px;font-weight:600;color:#5a3b00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Kortingscode</p>
+                <div style="display:flex;gap:8px;" id="discount-input-row">
+                    <input type="text" id="discount-code" placeholder="Voer je code in" style="flex:1;padding:10px 14px;border:1.5px solid #eee;border-radius:8px;font-size:13px;background:#fafafa;">
+                    <button type="button" onclick="applyDiscount()" style="padding:10px 14px;background:#5a3b00;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Toepassen</button>
+                </div>
+                <p id="discount-msg" style="font-size:12px;margin-top:5px;min-height:16px;"></p>
+                <div id="discount-applied" style="display:none;background:#f0faf3;border:1px solid #a8d5b5;border-radius:8px;padding:8px 12px;justify-content:space-between;align-items:center;">
+                    <span id="discount-label" style="font-size:13px;font-weight:600;color:#2d7a3a;"></span>
+                    <button type="button" onclick="removeDiscount()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:18px;padding:0 4px;">×</button>
+                </div>
             </div>
 
             <div class="payment-method">
@@ -178,7 +171,7 @@
     </form>
 </div>
 
-<div class="footer">© 2025 MUSICMEDIA — PREMIUM SOUND & VINYL SELECTION</div>
+<div class="footer">© 2026 MUSICMEDIA — PREMIUM SOUND & VINYL SELECTION</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
@@ -295,53 +288,78 @@
     });
   });
 
+  // Gecorrigeerde single submit handler
   document.getElementById('orderForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.querySelector('.btn-betaling');
     btn.disabled = true;
-    btn.textContent = 'Bestelling plaatsen...';
+    btn.textContent = 'Controleren...';
 
-    const cart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
-    const totaal = parseFloat(document.getElementById('hidden_total').value);
-
-    const order = {
-      datum: new Date().toLocaleString('nl-NL'),
-      klant: {
-        naam: document.querySelector('[name="voornaam"]').value + ' ' +
-              (document.querySelector('[name="tussenvoegsel"]').value ? document.querySelector('[name="tussenvoegsel"]').value + ' ' : '') +
-              document.querySelector('[name="achternaam"]').value,
-        email: document.querySelector('[name="email"]').value,
-        telefoon: document.querySelector('[name="telefoon"]').value
-      },
-      adres: {
-        straat: document.querySelector('[name="straat"]').value + ' ' + document.querySelector('[name="huisnummer"]').value,
-        postcode: document.querySelector('[name="postcode"]').value,
-        plaats: document.querySelector('[name="woonplaats"]').value
-      },
-      producten: cart,
-      totaal: totaal,
-      kortingscode: discountPercent > 0 ? document.getElementById('discount-label').textContent.split(' ')[0] : null,
-      status: "Nieuw"
-    };
-
+    const currentCart = JSON.parse(localStorage.getItem('musicmedia_cart') || '[]');
+    
     try {
+      // ── Stockcheck vórzover voorraad live aanwezig is ──
+      const productsSnap = await get(ref(db, 'products'));
+      if (productsSnap.exists()) {
+        let stockOk = true;
+        productsSnap.forEach(child => {
+          const p = child.val();
+          const cartItem = currentCart.find(i => i.name === p.name);
+          if (cartItem && p.stock !== undefined) {
+            if (cartItem.qty > p.stock) {
+              alert(`"${cartItem.name}" heeft nog maar ${p.stock} stuks op voorraad. Pas je winkelwagen aan.`);
+              stockOk = false;
+            }
+          }
+        });
+
+        if (!stockOk) {
+          btn.disabled = false;
+          btn.textContent = 'NU BETALEN';
+          return; // Stop het proces als de voorraad ontoereikend is
+        }
+      }
+
+      btn.textContent = 'Bestelling plaatsen...';
+      const totaal = parseFloat(document.getElementById('hidden_total').value);
+
+      // Bouw het order object op
+      const order = {
+        datum: new Date().toLocaleString('nl-NL'),
+        klant: {
+          naam: document.querySelector('[name="voornaam"]').value + ' ' +
+                (document.querySelector('[name="tussenvoegsel"]').value ? document.querySelector('[name="tussenvoegsel"]').value + ' ' : '') +
+                document.querySelector('[name="achternaam"]').value,
+          email: document.querySelector('[name="email"]').value,
+          telefoon: document.querySelector('[name="telefoon"]').value
+        },
+        adres: {
+          straat: document.querySelector('[name="straat"]').value + ' ' + document.querySelector('[name="huisnummer"]').value,
+          postcode: document.querySelector('[name="postcode"]').value,
+          plaats: document.querySelector('[name="woonplaats"]').value
+        },
+        producten: currentCart,
+        totaal: totaal,
+        kortingscode: discountPercent > 0 ? document.getElementById('discount-label').textContent.split(' ')[0] : null,
+        status: "Nieuw"
+      };
+
       // Stap 1: Sla order op in Firebase
       await push(ref(db, 'orders'), order);
 
       // Stap 2: Verwijder marketplace items na betaling
-      for (const item of cart) {
+      for (const item of currentCart) {
         if (item.marketplaceKey) {
           await remove(ref(db, `listings/${item.marketplaceKey}`));
         }
       }
 
       // Stap 3: Verlaag stock in Firebase
-      const productsSnapshot = await get(ref(db, 'products'));
-      if (productsSnapshot.exists()) {
+      if (productsSnap.exists()) {
         const updates = {};
-        productsSnapshot.forEach(child => {
+        productsSnap.forEach(child => {
           const product = child.val();
-          const cartItem = cart.find(i => i.name === product.name);
+          const cartItem = currentCart.find(i => i.name === product.name);
           if (cartItem && product.stock !== undefined) {
             const nieuweStock = Math.max(0, product.stock - cartItem.qty);
             updates[`products/${child.key}/stock`] = nieuweStock;
@@ -390,6 +408,5 @@
     }
   });
 </script>
-
 </body>
 </html>
